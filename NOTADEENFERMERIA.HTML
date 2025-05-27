@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Notas de Enfermería</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        .hidden {
+            display: none;
+        }
+
+        .section-active {
+            display: block;
+        }
+
+        /* Animaciones suaves */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Estilos para los botones de navegación */
+        .nav-button.active {
+            background-color: white;
+            border-bottom: 2px solid #3B82F6;
+            color: #3B82F6;
+        }
+
+        /* Estilos para mejorar la legibilidad de la nota generada */
+        .nota-generada {
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* Mejoras visuales */
+        .form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .field-group {
+            margin-bottom: 16px;
+        }
+
+        .field-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 4px;
+        }
+
+        .field-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #3B82F6;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563EB;
+        }
+
+        .btn-secondary {
+            background-color: #6B7280;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4B5563;
+        }
+
+        .btn-success {
+            background-color: #10B981;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-danger {
+            background-color: #EF4444;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-danger:hover {
+            background-color: #DC2626;
+        }
+
+        .alert-info {
+            background-color: #EBF8FF;
+            border: 1px solid #BEE3F8;
+            color: #2B6CB0;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .progress-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #D1D5DB;
+            transition: background-color 0.2s;
+        }
+
+        .progress-dot.active {
+            background-color: #3B82F6;
+        }
+
+        .medicamento-item,
+        .evento-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            background-color: #f9fafb;
+        }
+
+        .input-error {
+            border-color: #EF4444;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            /* Ajustes para pantallas pequeñas */
+
+            /* Reduce paddings generales */
+            .form-section {
+                padding: 16px;
+            }
+
+            /* Mejora navegación horizontal */
+            .nav-button {
+                flex-shrink: 0;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            /* Reducción en tamaños de fuente */
+            h1,
+            h3,
+            h4 {
+                font-size: 1rem;
+            }
+
+            .field-label {
+                font-size: 13px;
+            }
+
+            .field-input {
+                font-size: 13px;
+                padding: 6px 10px;
+            }
+
+            /* Botones */
+            .btn-primary,
+            .btn-secondary,
+            .btn-success,
+            .btn-danger {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+
+            /* Texto de la nota generada */
+            .nota-generada {
+                font-size: 13px;
+                padding: 12px;
+            }
+
+            /* Footer más compacto */
+            footer p,
+            footer a {
+                font-size: 12px;
+            }
+
+            /* Controla la barra inferior en móviles */
+            .rounded-b-lg.flex.justify-between {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #btnAnterior,
+            #btnSiguiente,
+            #btnGenerar {
+                width: 100%;
+            }
+        }
+    </style>
+
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-4 md:p-6">
+        <div class="bg-white rounded-lg shadow-lg">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-6 rounded-t-lg">
+                <h1 class="text-xl md:text-2xl font-bold mb-2">Generador de Notas de Enfermería</h1>
+                <p class="text-blue-100 text-sm md:text-base">Plantilla universal para generar notas profesionales de
+                    enfermería</p>
+            </div>
+
+            <!-- Navigation -->
+            <div class="border-b bg-gray-50">
+                <div class="flex overflow-x-auto">
+                    <button
+                        class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
+                        onclick="showSection(0)">
+                        <span>👤</span> Datos del Paciente
+                    </button>
+                    <button
+                        class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
+                        onclick="showSection(1)">
+                        <span>📊</span> Signos Vitales
+                    </button>
+                    <button
+                        class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
+                        onclick="showSection(2)">
+                        <span>🔍</span> Valoración Física
+                    </button>
+                    <button
+                        class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
+                        onclick="showSection(3)">
+                        <span>📝</span> Eventos del Turno
+                    </button>
+                    <button
+                        class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
+                        onclick="showSection(4)">
+                        <span>📄</span> Nota Generada
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4 md:p-6">
+
+                <!-- Sección 0: Datos del Paciente -->
+                <div id="section-0" class="section fade-in">
+                    <div class="form-section">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Información Básica del Paciente</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="field-group">
+                                <label class="field-label">Iniciales del paciente * <span
+                                        title="Letras que representan el nombre completo del paciente (Ej: Juan Pérez = JP).">ℹ️</span></label>
+                                <input type="text" id="iniciales" class="field-input" placeholder="Ej: LCL">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Edad * <span
+                                        title="Edad del paciente en años completos.">ℹ️</span></label>
+                                <input type="number" id="edad" class="field-input" placeholder="Ej: 45">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Género * <span
+                                        title="Identidad de género del paciente según el registro.">ℹ️</span></label>
+                                <select id="genero" class="field-input">
+                                    <option value="masculino">Masculino</option>
+                                    <option value="femenino">Femenino</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Alergias <span
+                                        title="Sustancias o medicamentos a los que el paciente presenta reacciones adversas.">ℹ️</span></label>
+                                <input type="text" id="alergias" class="field-input"
+                                    placeholder="Ej: esparadrapo, penicilina">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Hora de recepción * <span
+                                        title="Hora en la que el paciente fue recibido en el servicio.">ℹ️</span></label>
+                                <input type="time" id="horaRecepcion" class="field-input">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Habitación * <span
+                                        title="Número o código asignado al paciente en la institución.">ℹ️</span></label>
+                                <input type="text" id="habitacion" class="field-input" placeholder="Ej: 204B">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Acompañante <span
+                                        title="Persona que permanece con el paciente durante su estancia.">ℹ️</span></label>
+                                <input type="text" id="acompanante" class="field-input"
+                                    placeholder="Ej: hija, hermana, esposo">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Escala de Glasgow <span
+                                        title="Evalúa el nivel de conciencia. Máximo: 15.">ℹ️</span></label>
+                                <input type="text" id="glasgow" class="field-input" value="15" placeholder="15">
+                            </div>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="field-label">Posición <span
+                                    title="Posición en la que se encuentra el paciente al ingreso.">ℹ️</span></label>
+                            <select id="posicion" class="field-input">
+                                <option value="decúbito supino">Decúbito supino</option>
+                                <option value="decúbito lateral derecho">Decúbito lateral derecho</option>
+                                <option value="decúbito lateral izquierdo">Decúbito lateral izquierdo</option>
+                                <option value="sedente">Sedente</option>
+                                <option value="fowler">Fowler</option>
+                                <option value="semi-fowler">Semi-fowler</option>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="barandas" class="mr-2" checked>
+                                <span class="field-label mb-0">Barandas arriba <span
+                                        title="Medida de seguridad para evitar caídas del paciente.">ℹ️</span></span>
+                            </label>
+                        </div>
+
+                        <!-- Acceso Venoso -->
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Acceso Venoso</h4>
+                            <div class="field-group">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="tieneAccesoVenoso" class="mr-2"
+                                        onchange="toggleAccesoVenoso()">
+                                    <span class="field-label mb-0">Tiene acceso venoso</span>
+                                </label>
+                            </div>
+
+                            <div id="accesoVenosoFields" class="hidden mt-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="field-group">
+                                        <label class="field-label">Ubicación del acceso</label>
+                                        <input type="text" id="ubicacionAcceso" class="field-input"
+                                            placeholder="Ej: vena cefálica, extremidad derecha">
+                                    </div>
+                                    <div class="field-group">
+                                        <label class="field-label">Calibre del catéter <span
+                                                title="Número del catéter: entre más bajo el número, mayor el grosor.">ℹ️</span></label>
+                                        <input type="text" id="calibreCateter" class="field-input"
+                                            placeholder="Ej: 18, 20, 22">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Información Médica -->
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Información Médica</h4>
+
+                            <div class="field-group">
+                                <label class="field-label">Diagnóstico Principal <span
+                                        title="Motivo principal de hospitalización o atención médica.">ℹ️</span></label>
+                                <textarea id="diagnosticoPrincipal" class="field-input" rows="2"
+                                    placeholder="Ej: Postoperatorio de cirugía ortopédica de rodilla derecha"></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="field-group">
+                                    <label class="field-label">Fecha de cirugía <span
+                                            title="Fecha en la que se realizó el procedimiento quirúrgico.">ℹ️</span></label>
+                                    <input type="date" id="fechaCirugia" class="field-input">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">Procedimientos realizados <span
+                                            title="Cirugías o intervenciones médicas aplicadas.">ℹ️</span></label>
+                                    <input type="text" id="procedimientos" class="field-input"
+                                        placeholder="Ej: artroscopia de rodilla">
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Antecedentes médicos <span
+                                        title="Condiciones de salud previas relevantes (Ej: diabetes, hipertensión).">ℹ️</span></label>
+                                <input type="text" id="antecedentes" class="field-input"
+                                    placeholder="Ej: Diabetes tipo 2, hipertensión arterial">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="field-group">
+                                    <label class="field-label">Tipo de dieta <span
+                                            title="Tipo de alimentación indicada por el equipo médico.">ℹ️</span></label>
+                                    <input type="text" id="tipoDieta" class="field-input"
+                                        placeholder="Ej: hipoglucídica e hiposódica">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">Restricciones <span
+                                            title="Limitaciones físicas, alimenticias u otras indicadas por el médico.">ℹ️</span></label>
+                                    <input type="text" id="restricciones" class="field-input"
+                                        placeholder="Ej: restricción de flexión de pierna">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 1: Signos Vitales -->
+                <div id="section-1" class="section hidden">
+                    <div class="form-section">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Signos Vitales de Ingreso</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="field-group">
+                                <label class="field-label">Frecuencia Cardíaca (lpm) <span
+                                        title="Latidos por minuto. Rango normal: 60–100 lpm.">ℹ️</span></label>
+                                <input type="number" id="fc" class="field-input" placeholder="Ej: 60-100">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Frecuencia Respiratoria (rpm)</label>
+                                <input type="number" id="fr" class="field-input" placeholder="Ej: 12-20">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Temperatura (°C) <span
+                                        title="Valor corporal en grados Celsius. Normal: 36.0–37.5°C.">ℹ️</span></label>
+                                <input type="number" step="0.1" id="temperatura" class="field-input"
+                                    placeholder="Ej: 36.5">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">SPO2 (%) <span
+                                        title="Saturación de oxígeno en sangre. Normal: 95–100%.">ℹ️</span></label>
+                                <input type="number" id="spo2" class="field-input" placeholder="Ej: 95-100">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">PA Sistólica (mmHg) <span
+                                        title="Presión máxima durante el latido cardíaco.">ℹ️</span></label>
+                                <input type="number" id="paSistolica" class="field-input" placeholder="Ej: 120"
+                                    onchange="calcularPAM()">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">PA Diastólica (mmHg) <span
+                                        title="Presión mínima entre latidos del corazón.">ℹ️</span></label>
+                                <input type="number" id="paDiastolica" class="field-input" placeholder="Ej: 80"
+                                    onchange="calcularPAM()">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Glucometría (mg/dL) <span
+                                        title="Nivel de glucosa en sangre. Normal: 70–100 mg/dL en ayunas.">ℹ️</span></label>
+                                <input type="number" id="glucometria" class="field-input" placeholder="Ej: >100">
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">EVA - Dolor (0-10) <span
+                                        title="Escala visual de dolor donde 0 es nada y 10 es el peor dolor imaginable.">ℹ️</span></label>
+                                <input type="number" min="0" max="10" id="eva" class="field-input" placeholder="0-10">
+                            </div>
+                        </div>
+
+                        <div id="pamInfo" class="alert-info hidden">
+                            <p>PAM calculada: <span id="pamValue"></span> mmHg</p>
+                        </div>
+
+                        <!-- Signos Vitales de Entrega -->
+                        <div class="border-t pt-4 mt-6">
+                            <h4 class="font-medium text-gray-800 mb-4">Signos Vitales de Entrega</h4>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="field-group">
+                                    <label class="field-label">FC Final (lpm)</label>
+                                    <input type="number" id="fcFinal" class="field-input" placeholder="Ej: 95-100">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">FR Final (rpm)</label>
+                                    <input type="number" id="frFinal" class="field-input" placeholder="Ej: 12-20">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">Temperatura Final (°C)</label>
+                                    <input type="number" step="0.1" id="temperaturaFinal" class="field-input"
+                                        placeholder="Ej: 36.5">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">SPO2 Final (%)</label>
+                                    <input type="number" id="spo2Final" class="field-input" placeholder="Ej: 95-100">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">PA Sistólica Final</label>
+                                    <input type="number" id="paSistolicaFinal" class="field-input" placeholder="Ej: 120"
+                                        onchange="calcularPAMFinal()">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">PA Diastólica Final</label>
+                                    <input type="number" id="paDiastolicaFinal" class="field-input" placeholder="Ej: 80"
+                                        onchange="calcularPAMFinal()">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">Glucometría Final</label>
+                                    <input type="number" id="glucometriaFinal" class="field-input"
+                                        placeholder="Ej: >100">
+                                </div>
+
+                                <div class="field-group">
+                                    <label class="field-label">EVA Final</label>
+                                    <input type="number" min="0" max="10" id="evaFinal" class="field-input"
+                                        placeholder="0-10">
+                                </div>
+                            </div>
+
+                            <div id="pamFinalInfo" class="alert-info hidden">
+                                <p>PAM final calculada: <span id="pamFinalValue"></span> mmHg</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 2: Valoración Física -->
+                <div id="section-2" class="section hidden">
+                    <div class="form-section">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Valoración Física y Cuidados</h3>
+
+                        <!-- Examen Físico -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="field-group">
+                                <label class="field-label">Pupilas <span
+                                        title="Observación del tamaño y respuesta de las pupilas a la luz.">ℹ️</span></label>
+                                <select id="pupilas" class="field-input">
+                                    <option value="isocóricas y reactivas">Isocóricas y reactivas</option>
+                                    <option value="isocóricas">Isocóricas</option>
+                                    <option value="anisocóricas">Anisocóricas</option>
+                                    <option value="midriáticas">Midriáticas</option>
+                                    <option value="mióticas">Mióticas</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Mucosas <span
+                                        title="Aspecto de las mucosas orales: color, hidratación.">ℹ️</span></label>
+                                <select id="mucosas" class="field-input">
+                                    <option value="húmedas y rosadas">Húmedas y rosadas</option>
+                                    <option value="húmedas sin lesiones">Húmedas sin lesiones</option>
+                                    <option value="secas">Secas</option>
+                                    <option value="pálidas">Pálidas</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Ruidos cardíacos <span
+                                        title="Sonidos generados por el corazón al latir.">ℹ️</span></label>
+                                <select id="ruidosCardiacos" class="field-input">
+                                    <option value="rítmicos, sin soplos">Rítmicos, sin soplos</option>
+                                    <option value="arrítmicos, sin soplos">Arrítmicos, sin soplos</option>
+                                    <option value="rítmicos, con soplos">Rítmicos, con soplos</option>
+                                    <option value="taquicárdicos">Taquicárdicos</option>
+                                    <option value="bradicárdicos">Bradicárdicos</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Ruidos pulmonares <span
+                                        title="Sonidos que se escuchan al auscultar los pulmones.">ℹ️</span></label>
+                                <select id="ruidosPulmonares" class="field-input">
+                                    <option value="normales en ambos campos">Normales en ambos campos</option>
+                                    <option value="normales">Normales</option>
+                                    <option value="disminuidos">Disminuidos</option>
+                                    <option value="con estertores">Con estertores</option>
+                                    <option value="con sibilancias">Con sibilancias</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Abdomen <span
+                                        title="Estado físico del abdomen: blando, distendido, doloroso, etc.">ℹ️</span></label>
+                                <select id="abdomen" class="field-input">
+                                    <option value="blando, depresible, sin dolor">Blando, depresible, sin dolor</option>
+                                    <option value="sin distensión">Sin distensión</option>
+                                    <option value="distendido">Distendido</option>
+                                    <option value="doloroso a la palpación">Doloroso a la palpación</option>
+                                </select>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="field-label">Llenado capilar <span
+                                        title="Tiempo que tarda la sangre en retornar al presionar una uña. Normal: < 2 segundos.">ℹ️</span></label>
+                                <select id="llenadoCapilar" class="field-input">
+                                    <option value="< 2 segundos">
+                                        < 2 segundos</option>
+                                    <option value="< 3 segundos">
+                                        < 3 segundos</option>
+                                    <option value="> 3 segundos">> 3 segundos</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Evaluación Nutricional -->
+                        <div class="field-group mb-6">
+                            <label class="field-label">Evaluación nutricional</label>
+                            <textarea id="evaluacionNutricional" class="field-input" rows="3"
+                                placeholder="Ej: la paciente refiere alimentación adecuada, presenta buen estado nutricional..."></textarea>
+                        </div>
+
+                        <!-- Terapia Física -->
+                        <div class="border-t pt-4 mb-6">
+                            <h4 class="font-medium text-gray-800 mb-3">Terapia Física</h4>
+                            <div class="field-group">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="terapiaFisica" class="mr-2"
+                                        onchange="toggleTerapiaFisica()">
+                                    <span class="field-label mb-0">Se realizó terapia física</span>
+                                </label>
+                            </div>
+
+                            <div id="terapiaFisicaFields" class="hidden mt-3">
+                                <div class="field-group">
+                                    <label class="field-label">Detalles de la terapia</label>
+                                    <textarea id="detallesTerapia" class="field-input" rows="3"
+                                        placeholder="Ej: se asiste al paciente para deambulación, realizando ejercicios de flexión..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medicamentos -->
+                        <div class="border-t pt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Medicamentos Administrados</h4>
+                            <button onclick="agregarMedicamento()" class="btn-success mb-4">+ Agregar
+                                Medicamento</button>
+
+                            <div id="medicamentosContainer">
+                                <!-- Los medicamentos se agregarán dinámicamente aquí -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 3: Eventos del Turno -->
+                <div id="section-3" class="section hidden">
+                    <div class="form-section">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Eventos del Turno</h3>
+
+                        <button onclick="agregarEvento()" class="btn-primary mb-4">+ Agregar Evento</button>
+
+                        <div id="eventosContainer" class="mb-6">
+                            <!-- Los eventos se agregarán dinámicamente aquí -->
+                        </div>
+
+                        <div class="border-t pt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Observaciones Adicionales</h4>
+                            <div class="field-group">
+                                <label class="field-label">Observaciones generales</label>
+                                <textarea id="observaciones" class="field-input" rows="4"
+                                    placeholder="Observaciones generales, recomendaciones especiales, estado general del paciente..."></textarea>
+                            </div>
+                        </div>
+                        <button onclick="generarNota()" class="btn-secondary mb-4">
+                            👁 Ver vista previa
+                        </button>
+                        <div class="bg-green-50 border border-green-200 p-4 rounded-md mt-6">
+                            <p class="text-green-800 font-medium mb-2">¡Listo para generar la nota!</p>
+                            <p class="text-green-700 text-sm">
+                                Has completado la información necesaria. Haz clic en "Generar Nota" para crear tu nota
+                                de enfermería profesional.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 4: Nota Generada -->
+                <div id="section-4" class="section hidden">
+                    <div class="form-section">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Nota de Enfermería Generada</h3>
+
+                        <div id="notaGenerada" class="nota-generada mb-4">
+                            <!-- La nota generada aparecerá aquí -->
+                        </div>
+
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="copiarNota()" class="btn-primary">
+                                📋 Copiar al Portapapeles
+                            </button>
+
+                            <button onclick="descargarNota()" class="btn-success">
+                                💾 Descargar como TXT
+                            </button>
+
+                            <button onclick="exportarComoPDF()" class="btn-success">
+                                📄 Exportar como PDF
+                            </button>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Navigation -->
+            <div class="bg-gray-50 px-4 md:px-6 py-4 rounded-b-lg flex justify-between items-center border-t">
+                <button id="btnAnterior" onclick="anteriorSeccion()" class="btn-secondary" disabled>
+                    ← Anterior
+                </button>
+
+                <div class="w-full max-w-md mx-auto bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div id="progressBar" class="bg-blue-500 h-2.5 transition-all duration-300" style="width: 20%;">
+                    </div>
+                </div>
+
+
+                <button id="btnSiguiente" onclick="siguienteSeccion()" class="btn-primary">
+                    Siguiente →
+                </button>
+
+                <button id="btnGenerar" onclick="generarNota()" class="btn-success hidden">
+                    📄 Generar Nota
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+        class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg z-50 hidden">
+        ⬆️
+    </button>
+
+    <!-- Footer con estilo bonito -->
+    <footer class="mt-10 border-t border-gray-200 bg-gradient-to-r from-blue-50 via-white to-blue-50 text-center py-6">
+        <p class="text-gray-600 text-sm md:text-base">
+            Hecho con
+            <span class="inline-block animate-pulse text-red-500">❤</span>
+            por <span class="font-semibold text-blue-700">Tomas Arciniegas Quintero</span>
+        </p>
+        <a href="https://linktr.ee/Tomas_arciniegas" target="_blank"
+            class="text-blue-500 hover:underline text-xs md:text-sm">
+            Visita mi portafolio
+        </a>
+    </footer>
+
+    <script>
+        let currentSection = 0;
+        let medicamentosCount = 0;
+        let eventosCount = 0;
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function () {
+            showSection(0);
+            // Establecer fecha actual por defecto
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaCirugia').value = today;
+
+            // Establecer hora actual por defecto
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ':' +
+                now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('horaRecepcion').value = currentTime;
+        });
+
+        // Navegación entre secciones
+        function showSection(sectionIndex) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('section-active');
+            });
+
+            // Mostrar la sección seleccionada
+            const selectedSection = document.getElementById(`section-${sectionIndex}`);
+            selectedSection.classList.remove('hidden');
+            selectedSection.classList.add('section-active', 'fade-in');
+
+            // Actualizar navegación
+            document.querySelectorAll('.nav-button').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if (index === sectionIndex) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Actualizar indicadores de progreso
+            document.querySelectorAll('.progress-dot').forEach((dot, index) => {
+                dot.classList.remove('active');
+                if (index <= sectionIndex) {
+                    dot.classList.add('active');
+                }
+            });
+
+            currentSection = sectionIndex;
+            updateNavigationButtons();
+            actualizarBarraProgreso();
+        }
+
+        function actualizarBarraProgreso() {
+            const porcentaje = (currentSection + 1) * 20;
+            document.getElementById('progressBar').style.width = `${porcentaje}%`;
+        }
+
+
+        function updateNavigationButtons() {
+            const btnAnterior = document.getElementById('btnAnterior');
+            const btnSiguiente = document.getElementById('btnSiguiente');
+            const btnGenerar = document.getElementById('btnGenerar');
+
+            btnAnterior.disabled = currentSection === 0;
+
+            if (currentSection === 4) {
+                btnSiguiente.classList.add('hidden');
+                btnGenerar.classList.add('hidden'); // La nota ya está generada en sección 4
+            } else if (currentSection === 3) {
+                btnSiguiente.classList.add('hidden');
+                btnGenerar.classList.remove('hidden');
+            } else {
+                btnSiguiente.classList.remove('hidden');
+                btnGenerar.classList.add('hidden');
+            }
+        }
+
+        function anteriorSeccion() {
+            if (currentSection > 0) {
+                showSection(currentSection - 1);
+            }
+        }
+
+        function siguienteSeccion() {
+            if (currentSection < 4) {
+                showSection(currentSection + 1);
+            }
+        }
+
+        // Funciones para toggles
+        function toggleAccesoVenoso() {
+            const checkbox = document.getElementById('tieneAccesoVenoso');
+            const fields = document.getElementById('accesoVenosoFields');
+
+            if (checkbox.checked) {
+                fields.classList.remove('hidden');
+            } else {
+                fields.classList.add('hidden');
+            }
+        }
+
+        function toggleTerapiaFisica() {
+            const checkbox = document.getElementById('terapiaFisica');
+            const fields = document.getElementById('terapiaFisicaFields');
+
+            if (checkbox.checked) {
+                fields.classList.remove('hidden');
+            } else {
+                fields.classList.add('hidden');
+            }
+        }
+
+        // Cálculo de PAM
+        function calcularPAM() {
+            const sistolica = parseFloat(document.getElementById('paSistolica').value);
+            const diastolica = parseFloat(document.getElementById('paDiastolica').value);
+
+            if (sistolica && diastolica) {
+                const pam = Math.round(diastolica + (sistolica - diastolica) / 3);
+                document.getElementById('pamValue').textContent = pam;
+                document.getElementById('pamInfo').classList.remove('hidden');
+            } else {
+                document.getElementById('pamInfo').classList.add('hidden');
+            }
+        }
+
+        function calcularPAMFinal() {
+            const sistolica = parseFloat(document.getElementById('paSistolicaFinal').value);
+            const diastolica = parseFloat(document.getElementById('paDiastolicaFinal').value);
+
+            if (sistolica && diastolica) {
+                const pam = Math.round(diastolica + (sistolica - diastolica) / 3);
+                document.getElementById('pamFinalValue').textContent = pam;
+                document.getElementById('pamFinalInfo').classList.remove('hidden');
+            } else {
+                document.getElementById('pamFinalInfo').classList.add('hidden');
+            }
+        }
+
+        // Gestión de medicamentos
+        function agregarMedicamento() {
+            medicamentosCount++;
+            const container = document.getElementById('medicamentosContainer');
+
+            const medicamentoDiv = document.createElement('div');
+            medicamentoDiv.className = 'medicamento-item';
+            medicamentoDiv.id = `medicamento-${medicamentosCount}`;
+
+            medicamentoDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+            <h5 class="font-medium text-gray-700">Medicamento ${medicamentosCount}</h5>
+            <button onclick="eliminarMedicamento(${medicamentosCount})" class="btn-danger">
+                🗑️ Eliminar
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="field-group">
+                <label class="field-label">Nombre del medicamento <span title="Nombre genérico o comercial del fármaco administrado.">ℹ️</span></label>
+                <input type="text" id="nombreMed-${medicamentosCount}" class="field-input" placeholder="Ej: tramadol">
+            </div>
+            
+            <div class="field-group">
+                <label class="field-label">Dosis</label>
+                <input type="text" id="dosisMed-${medicamentosCount}" class="field-input" placeholder="Ej: 50 mg">
+            </div>
+            
+            <div class="field-group">
+                <label class="field-label">Vía de administración <span title="Ruta por la cual se administró el medicamento (IV, IM, VO, etc.).">ℹ️</span></label>
+                <select id="viaMed-${medicamentosCount}" class="field-input">
+                    <option value="IV">Intravenosa (IV)</option>
+                    <option value="IM">Intramuscular (IM)</option>
+                    <option value="SC">Subcutánea (SC)</option>
+                    <option value="VO">Vía oral (VO)</option>
+                    <option value="SL">Sublingual (SL)</option>
+                    <option value="tópica">Tópica</option>
+                </select>
+            </div>
+            
+            <div class="field-group">
+                <label class="field-label">Hora de administración <span title="Hora exacta en que se aplicó el medicamento.">ℹ️</span></label>
+                <input type="time" id="horaMed-${medicamentosCount}" class="field-input">
+            </div>
+        </div>
+        
+        <div class="field-group">
+            <label class="field-label">Observaciones del medicamento <span title="Efectos observados o reacciones tras la administración.">ℹ️</span></label>
+            <textarea id="obseMed-${medicamentosCount}" class="field-input" rows="2" placeholder="Efectos observados, reacciones, etc."></textarea>
+        </div>
+    `;
+
+            container.appendChild(medicamentoDiv);
+        }
+
+        function eliminarMedicamento(id) {
+            const medicamento = document.getElementById(`medicamento-${id}`);
+            if (medicamento) {
+                medicamento.remove();
+            }
+        }
+
+        // Gestión de eventos
+        function agregarEvento() {
+            eventosCount++;
+            const container = document.getElementById('eventosContainer');
+
+            const eventoDiv = document.createElement('div');
+            eventoDiv.className = 'evento-item';
+            eventoDiv.id = `evento-${eventosCount}`;
+
+            eventoDiv.innerHTML = `
+        <div class="flex justify-between items-center mb-3">
+            <h5 class="font-medium text-gray-700">Evento ${eventosCount}</h5>
+            <button onclick="eliminarEvento(${eventosCount})" class="btn-danger">
+                🗑️ Eliminar
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="field-group">
+                <label class="field-label">Hora del evento</label>
+                <input type="time" id="horaEvento-${eventosCount}" class="field-input">
+            </div>
+            
+            <div class="field-group">
+                <label class="field-label">Tipo de evento <span title="Categoría del procedimiento o acción realizada.">ℹ️</span></label>
+                <select id="tipoEvento-${eventosCount}" class="field-input">
+                    <option value="administración de medicamento">Administración de medicamento</option>
+                    <option value="toma de signos vitales">Toma de signos vitales</option>
+                    <option value="curaciones">Curaciones</option>
+                    <option value="movilización">Movilización</option>
+                    <option value="alimentación">Alimentación</option>
+                    <option value="higiene">Higiene</option>
+                    <option value="procedimiento">Procedimiento</option>
+                    <option value="interconsulta">Interconsulta</option>
+                    <option value="visita médica">Visita médica</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="field-group">
+            <label class="field-label">Descripción del evento <span title="Detalles sobre lo realizado, cómo y cuándo.">ℹ️</span></label>
+            <textarea id="descripcionEvento-${eventosCount}" class="field-input" rows="3" placeholder="Describe detalladamente lo ocurrido durante este evento..."></textarea>
+        </div>
+    `;
+
+            container.appendChild(eventoDiv);
+        }
+
+        function eliminarEvento(id) {
+            const evento = document.getElementById(`evento-${id}`);
+            if (evento) {
+                evento.remove();
+            }
+        }
+
+        // Generación de la nota
+        function generarNota() {
+            // Recopilar todos los datos
+            const datos = recopilarDatos();
+
+            // Limpia errores anteriores
+            ['iniciales', 'edad', 'habitacion'].forEach(id => {
+                document.getElementById(id).classList.remove('input-error');
+            });
+
+            let camposInvalidos = [];
+
+            if (!datos.iniciales) camposInvalidos.push('iniciales');
+            if (!datos.edad) camposInvalidos.push('edad');
+            if (!datos.habitacion) camposInvalidos.push('habitacion');
+
+            if (camposInvalidos.length > 0) {
+                camposInvalidos.forEach(id => document.getElementById(id).classList.add('input-error'));
+                alert('Por favor, completa los campos obligatorios: iniciales, edad y habitación.');
+                return;
+            }
+
+
+            // Generar la nota
+            const nota = construirNota(datos);
+
+            // Mostrar la nota generada
+            document.getElementById('notaGenerada').textContent = nota;
+
+            // Ir a la sección de la nota generada
+            showSection(4);
+        }
+
+        function recopilarDatos() {
+            const datos = {};
+
+            // Datos básicos
+            datos.iniciales = document.getElementById('iniciales').value;
+            datos.edad = document.getElementById('edad').value;
+            datos.genero = document.getElementById('genero').value;
+            datos.alergias = document.getElementById('alergias').value;
+            datos.horaRecepcion = document.getElementById('horaRecepcion').value;
+            datos.habitacion = document.getElementById('habitacion').value;
+            datos.acompanante = document.getElementById('acompanante').value;
+            datos.glasgow = document.getElementById('glasgow').value;
+            datos.posicion = document.getElementById('posicion').value;
+            datos.barandas = document.getElementById('barandas').checked;
+
+            // Acceso venoso
+            datos.tieneAccesoVenoso = document.getElementById('tieneAccesoVenoso').checked;
+            datos.ubicacionAcceso = document.getElementById('ubicacionAcceso').value;
+            datos.calibreCateter = document.getElementById('calibreCateter').value;
+
+            // Información médica
+            datos.diagnosticoPrincipal = document.getElementById('diagnosticoPrincipal').value;
+            datos.fechaCirugia = document.getElementById('fechaCirugia').value;
+            datos.procedimientos = document.getElementById('procedimientos').value;
+            datos.antecedentes = document.getElementById('antecedentes').value;
+            datos.tipoDieta = document.getElementById('tipoDieta').value;
+            datos.restricciones = document.getElementById('restricciones').value;
+
+            // Signos vitales iniciales
+            datos.fc = document.getElementById('fc').value;
+            datos.fr = document.getElementById('fr').value;
+            datos.temperatura = document.getElementById('temperatura').value;
+            datos.spo2 = document.getElementById('spo2').value;
+            datos.paSistolica = document.getElementById('paSistolica').value;
+            datos.paDiastolica = document.getElementById('paDiastolica').value;
+            datos.glucometria = document.getElementById('glucometria').value;
+            datos.eva = document.getElementById('eva').value;
+
+            // Signos vitales finales
+            datos.fcFinal = document.getElementById('fcFinal').value;
+            datos.frFinal = document.getElementById('frFinal').value;
+            datos.temperaturaFinal = document.getElementById('temperaturaFinal').value;
+            datos.spo2Final = document.getElementById('spo2Final').value;
+            datos.paSistolicaFinal = document.getElementById('paSistolicaFinal').value;
+            datos.paDiastolicaFinal = document.getElementById('paDiastolicaFinal').value;
+            datos.glucometriaFinal = document.getElementById('glucometriaFinal').value;
+            datos.evaFinal = document.getElementById('evaFinal').value;
+
+            // Examen físico
+            datos.pupilas = document.getElementById('pupilas').value;
+            datos.mucosas = document.getElementById('mucosas').value;
+            datos.ruidosCardiacos = document.getElementById('ruidosCardiacos').value;
+            datos.ruidosPulmonares = document.getElementById('ruidosPulmonares').value;
+            datos.abdomen = document.getElementById('abdomen').value;
+            datos.llenadoCapilar = document.getElementById('llenadoCapilar').value;
+            datos.evaluacionNutricional = document.getElementById('evaluacionNutricional').value;
+
+            // Terapia física
+            datos.terapiaFisica = document.getElementById('terapiaFisica').checked;
+            datos.detallesTerapia = document.getElementById('detallesTerapia').value;
+
+            // Medicamentos
+            datos.medicamentos = [];
+            document.querySelectorAll('.medicamento-item').forEach((item, index) => {
+                const id = item.id.split('-')[1];
+                const medicamento = {
+                    nombre: document.getElementById(`nombreMed-${id}`)?.value || '',
+                    dosis: document.getElementById(`dosisMed-${id}`)?.value || '',
+                    via: document.getElementById(`viaMed-${id}`)?.value || '',
+                    hora: document.getElementById(`horaMed-${id}`)?.value || '',
+                    observaciones: document.getElementById(`obseMed-${id}`)?.value || ''
+                };
+                if (medicamento.nombre) {
+                    datos.medicamentos.push(medicamento);
+                }
+            });
+
+            // Eventos
+            datos.eventos = [];
+            document.querySelectorAll('.evento-item').forEach((item, index) => {
+                const id = item.id.split('-')[1];
+                const evento = {
+                    hora: document.getElementById(`horaEvento-${id}`)?.value || '',
+                    tipo: document.getElementById(`tipoEvento-${id}`)?.value || '',
+                    descripcion: document.getElementById(`descripcionEvento-${id}`)?.value || ''
+                };
+                if (evento.descripcion) {
+                    datos.eventos.push(evento);
+                }
+            });
+
+            datos.observaciones = document.getElementById('observaciones').value;
+
+            return datos;
+        }
+
+        function construirNota(datos) {
+            const fecha = new Date().toLocaleDateString('es-ES');
+            const hora = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+            let nota = `NOTA DE ENFERMERÍA\n`;
+            nota += `Fecha: ${fecha} - Hora: ${hora}\n\n`;
+
+            // Párrafo de identificación del paciente
+            nota += `Se recibe en el servicio a paciente de iniciales ${datos.iniciales}, de ${datos.edad} años de edad, género ${datos.genero}`;
+            if (datos.acompanante) {
+                nota += `, quien se encuentra acompañado(a) por su ${datos.acompanante}`;
+            }
+            nota += `, asignado(a) a la habitación ${datos.habitacion} a las ${datos.horaRecepcion} horas`;
+            if (datos.alergias) {
+                nota += `. El paciente presenta alergia conocida a ${datos.alergias}`;
+            }
+            nota += `.\n\n`;
+
+            // Información médica y diagnóstico
+            if (datos.diagnosticoPrincipal) {
+                nota += `El diagnóstico principal corresponde a ${datos.diagnosticoPrincipal}`;
+                if (datos.fechaCirugia && datos.procedimientos) {
+                    const fechaCirugia = new Date(datos.fechaCirugia).toLocaleDateString('es-ES');
+                    nota += `, habiendo sido sometido(a) a ${datos.procedimientos} el día ${fechaCirugia}`;
+                }
+                nota += `. `;
+            }
+
+            if (datos.antecedentes) {
+                nota += `Entre sus antecedentes médicos de importancia se registra: ${datos.antecedentes}. `;
+            }
+
+            if (datos.tipoDieta) {
+                nota += `Se encuentra con indicación de dieta ${datos.tipoDieta}`;
+                if (datos.restricciones) {
+                    nota += ` y restricciones de ${datos.restricciones}`;
+                }
+                nota += `. `;
+            }
+            nota += `\n\n`;
+
+            // Valoración física y signos vitales de ingreso
+            nota += `Al ingreso, el paciente se encuentra en posición ${datos.posicion}`;
+            if (datos.barandas) {
+                nota += ` con barandas arriba por seguridad`;
+            } else { nota += ` con barandas abajo`; }
+            nota += `. Presenta una escala de Glasgow de ${datos.glasgow || '15'} puntos, pupilas ${datos.pupilas}, mucosas ${datos.mucosas}. `;
+
+            nota += `A la auscultación se evidencian ruidos cardíacos ${datos.ruidosCardiacos} y ruidos pulmonares ${datos.ruidosPulmonares}. `;
+            nota += `El abdomen se palpa ${datos.abdomen} y presenta un llenado capilar ${datos.llenadoCapilar}. `;
+
+            if (datos.tieneAccesoVenoso) {
+                nota += `Cuenta con acceso venoso permeable en ${datos.ubicacionAcceso || 'extremidad'}`;
+                if (datos.calibreCateter) {
+                    nota += ` con catéter número ${datos.calibreCateter}`;
+                }
+                nota += `. `;
+            } else { nota += ` no cuenta con acceso venoso`; }
+
+            // Signos vitales de ingreso en formato narrativo
+            if (datos.fc || datos.fr || datos.temperatura || datos.spo2 || datos.paSistolica || datos.glucometria || datos.eva) {
+                nota += `Los signos vitales de ingreso registran: `;
+                let signos = [];
+                if (datos.fc) signos.push(`frecuencia cardíaca de ${datos.fc} latidos por minuto`);
+                if (datos.fr) signos.push(`frecuencia respiratoria de ${datos.fr} respiraciones por minuto`);
+                if (datos.temperatura) signos.push(`temperatura corporal de ${datos.temperatura}°C`);
+                if (datos.spo2) signos.push(`saturación de oxígeno del ${datos.spo2}%`);
+                if (datos.paSistolica && datos.paDiastolica) signos.push(`presión arterial de ${datos.paSistolica}/${datos.paDiastolica} mmHg`);
+                if (datos.glucometria) signos.push(`glucometría de ${datos.glucometria} mg/dL`);
+                if (datos.eva) signos.push(`escala análoga visual para dolor de ${datos.eva}/10`);
+
+                nota += signos.join(', ') + `. `;
+            }
+            nota += `\n\n`;
+
+            // Evaluación nutricional
+            if (datos.evaluacionNutricional) {
+                nota += `En cuanto a la evaluación nutricional, ${datos.evaluacionNutricional}. `;
+            }
+
+            // Medicamentos y eventos del turno en formato narrativo
+            if (datos.medicamentos.length > 0 || datos.eventos.length > 0) {
+                nota += `Durante el turno se realizaron las siguientes intervenciones: `;
+
+                // Combinar medicamentos y eventos y ordenar por hora
+                let intervenciones = [];
+
+                datos.medicamentos.forEach(med => {
+                    let intervencion = `se administró ${med.nombre} ${med.dosis} vía ${med.via}`;
+                    if (med.hora) intervencion += ` a las ${med.hora} horas`;
+                    if (med.observaciones && med.observaciones.toLowerCase() !== 'ninguno' && med.observaciones.toLowerCase() !== 'ninguna') {
+                        intervencion += ` (${med.observaciones})`;
+                    }
+                    intervenciones.push({ hora: med.hora || '', texto: intervencion });
+                });
+
+                datos.eventos.forEach(evento => {
+                    let intervencion = `se realizó ${evento.tipo}: ${evento.descripcion}`;
+                    if (evento.hora) intervencion += ` a las ${evento.hora} horas`;
+                    intervenciones.push({ hora: evento.hora || '', texto: intervencion });
+                });
+
+                // Ordenar intervenciones por hora
+                intervenciones.sort((a, b) => a.hora.localeCompare(b.hora));
+
+                if (intervenciones.length > 0) {
+                    nota += intervenciones.map(i => i.texto).join('; ') + `. `;
+                }
+            }
+
+            // Terapia física
+            if (datos.terapiaFisica && datos.detallesTerapia) {
+                nota += `Se implementó terapia física donde ${datos.detallesTerapia}. `;
+            }
+
+            nota += `\n\n`;
+
+            // Signos vitales de entrega
+            if (datos.fcFinal || datos.frFinal || datos.temperaturaFinal || datos.spo2Final ||
+                datos.paSistolicaFinal || datos.paDiastolicaFinal || datos.glucometriaFinal || datos.evaFinal) {
+
+                nota += `Al momento de la entrega del turno, el paciente presenta signos vitales de: `;
+                let signosFinales = [];
+                if (datos.fcFinal) signosFinales.push(`frecuencia cardíaca de ${datos.fcFinal} latidos por minuto`);
+                if (datos.frFinal) signosFinales.push(`frecuencia respiratoria de ${datos.frFinal} respiraciones por minuto`);
+                if (datos.temperaturaFinal) signosFinales.push(`temperatura de ${datos.temperaturaFinal}°C`);
+                if (datos.spo2Final) signosFinales.push(`saturación de oxígeno del ${datos.spo2Final}%`);
+                if (datos.paSistolicaFinal && datos.paDiastolicaFinal) signosFinales.push(`presión arterial de ${datos.paSistolicaFinal}/${datos.paDiastolicaFinal} mmHg`);
+                if (datos.glucometriaFinal) signosFinales.push(`glucometría de ${datos.glucometriaFinal} mg/dL`);
+                if (datos.evaFinal) signosFinales.push(`dolor referido en escala de ${datos.evaFinal}/10`);
+
+                nota += signosFinales.join(', ') + `. `;
+            }
+
+            // Observaciones adicionales
+            if (datos.observaciones && datos.observaciones.toLowerCase() !== 'ninguna' && datos.observaciones.toLowerCase() !== 'ninguno') {
+                nota += `Observaciones adicionales: ${datos.observaciones}. `;
+            }
+
+            // Estado general y cierre
+            nota += `\n\nEl paciente se encuentra estable hemodinámicamente, sin presentar complicaciones durante el turno. Se entrega para continuidad de cuidados al siguiente turno.\n\n`;
+
+            // Firma
+            nota += `_________________________________\n`;
+            nota += `Enfermero(a) de turno\n`;
+            nota += `Fecha y hora: ${fecha} - ${hora}`;
+
+            return nota;
+        }
+
+        // Funciones para la nota generada
+        function copiarNota() {
+            const nota = document.getElementById('notaGenerada').textContent;
+            navigator.clipboard.writeText(nota).then(() => {
+                alert('Nota copiada al portapapeles');
+            }).catch(() => {
+                alert('Error al copiar la nota');
+            });
+        }
+
+        function descargarNota() {
+            const nota = document.getElementById('notaGenerada').textContent;
+            const iniciales = document.getElementById('iniciales').value || 'Paciente';
+            const fecha = new Date().toISOString().split('T')[0];
+            const filename = `Nota_Enfermeria_${iniciales}_${fecha}.txt`;
+
+            const blob = new Blob([nota], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        window.siguienteSeccion = function () {
+            if (currentSection < 4) {
+                showSection(currentSection + 1);
+            }
+        };
+
+        window.toggleAccesoVenoso = function () {
+            const checkbox = document.getElementById('tieneAccesoVenoso');
+            const fields = document.getElementById('accesoVenosoFields');
+
+            if (checkbox.checked) {
+                fields.classList.remove('hidden');
+            } else {
+                fields.classList.add('hidden');
+            }
+        };
+
+        async function exportarComoPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const texto = document.getElementById('notaGenerada').textContent;
+
+            const lineas = doc.splitTextToSize(texto, 180);
+            doc.text(lineas, 15, 20);
+            const nombre = document.getElementById('iniciales').value || 'Paciente';
+            const fecha = new Date().toISOString().split('T')[0];
+            doc.save(`Nota_Enfermeria_${nombre}_${fecha}.pdf`);
+        }
+
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('scrollTopBtn');
+            if (window.scrollY > 300) {
+                btn.classList.remove('hidden');
+            } else {
+                btn.classList.add('hidden');
+            }
+        });
+
+    </script>
+
+</body>
+
+</html>
