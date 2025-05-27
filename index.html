@@ -255,6 +255,22 @@
                 width: 100%;
             }
         }
+
+        .tooltip {
+            position: absolute;
+            background-color: #ffffff;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #374151;
+            z-index: 100;
+        }
+
+        .tooltip.hidden {
+            display: none;
+        }
     </style>
 
 </head>
@@ -310,20 +326,21 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div class="field-group">
-                                <label class="field-label">Iniciales del paciente * <span
-                                        title="Letras que representan el nombre completo del paciente (Ej: Juan Pérez = JP).">ℹ️</span></label>
+                                <label class="field-label">Iniciales del paciente * <span class="tooltip-trigger"
+                                        data-tooltip="Letras que representan el nombre completo del paciente (Ej: Juan Pérez = JP).">ℹ️
+                                        </sxpan></label>
                                 <input type="text" id="iniciales" class="field-input" placeholder="Ej: LCL">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Edad * <span
-                                        title="Edad del paciente en años completos.">ℹ️</span></label>
+                                <label class="field-label">Edad * <span class="tooltip-trigger"
+                                        data-tooltip="Edad del paciente en años completos.">ℹ️</span></label>
                                 <input type="number" id="edad" class="field-input" placeholder="Ej: 45">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Género * <span
-                                        title="Identidad de género del paciente según el registro.">ℹ️</span></label>
+                                <label class="field-label">Género * <span class="tooltip-trigger"
+                                        data-tooltip="Identidad de género del paciente según el registro.">ℹ️</span></label>
                                 <select id="genero" class="field-input">
                                     <option value="masculino">Masculino</option>
                                     <option value="femenino">Femenino</option>
@@ -331,41 +348,41 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Alergias <span
-                                        title="Sustancias o medicamentos a los que el paciente presenta reacciones adversas.">ℹ️</span></label>
+                                <label class="field-label">Alergias <span class="tooltip-trigger"
+                                        data-tooltip="Sustancias o medicamentos a los que el paciente presenta reacciones adversas.">ℹ️</span></label>
                                 <input type="text" id="alergias" class="field-input"
                                     placeholder="Ej: esparadrapo, penicilina">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Hora de recepción * <span
-                                        title="Hora en la que el paciente fue recibido en el servicio.">ℹ️</span></label>
+                                <label class="field-label">Hora de recepción * <span class="tooltip-trigger"
+                                        data-tooltip="Hora en la que el paciente fue recibido en el servicio.">ℹ️</span></label>
                                 <input type="time" id="horaRecepcion" class="field-input">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Habitación * <span
-                                        title="Número o código asignado al paciente en la institución.">ℹ️</span></label>
+                                <label class="field-label">Habitación * <span class="tooltip-trigger"
+                                        data-tooltip="Número o código asignado al paciente en la institución.">ℹ️</span></label>
                                 <input type="text" id="habitacion" class="field-input" placeholder="Ej: 204B">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Acompañante <span
-                                        title="Persona que permanece con el paciente durante su estancia.">ℹ️</span></label>
+                                <label class="field-label">Acompañante <span class="tooltip-trigger"
+                                        data-tooltip="Persona que permanece con el paciente durante su estancia.">ℹ️</span></label>
                                 <input type="text" id="acompanante" class="field-input"
                                     placeholder="Ej: hija, hermana, esposo">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Escala de Glasgow <span
-                                        title="Evalúa el nivel de conciencia. Máximo: 15.">ℹ️</span></label>
+                                <label class="field-label">Escala de Glasgow <span class="tooltip-trigger"
+                                        data-tooltip="Evalúa el nivel de conciencia. Máximo: 15.">ℹ️</span></label>
                                 <input type="text" id="glasgow" class="field-input" value="15" placeholder="15">
                             </div>
                         </div>
 
                         <div class="field-group">
-                            <label class="field-label">Posición <span
-                                    title="Posición en la que se encuentra el paciente al ingreso.">ℹ️</span></label>
+                            <label class="field-label">Posición <span class="tooltip-trigger"
+                                    data-tooltip="Posición en la que se encuentra el paciente al ingreso.">ℹ️</span></label>
                             <select id="posicion" class="field-input">
                                 <option value="decúbito supino">Decúbito supino</option>
                                 <option value="decúbito lateral derecho">Decúbito lateral derecho</option>
@@ -379,8 +396,8 @@
                         <div class="field-group">
                             <label class="flex items-center">
                                 <input type="checkbox" id="barandas" class="mr-2" checked>
-                                <span class="field-label mb-0">Barandas arriba <span
-                                        title="Medida de seguridad para evitar caídas del paciente.">ℹ️</span></span>
+                                <span class="field-label mb-0">Barandas arriba <span class="tooltip-trigger"
+                                        data-tooltip="Medida de seguridad para evitar caídas del paciente.">ℹ️</span></span>
                             </label>
                         </div>
 
@@ -403,8 +420,8 @@
                                             placeholder="Ej: vena cefálica, extremidad derecha">
                                     </div>
                                     <div class="field-group">
-                                        <label class="field-label">Calibre del catéter <span
-                                                title="Número del catéter: entre más bajo el número, mayor el grosor.">ℹ️</span></label>
+                                        <label class="field-label">Calibre del catéter <span class="tooltip-trigger"
+                                                data-tooltip="Número del catéter: entre más bajo el número, mayor el grosor.">ℹ️</span></label>
                                         <input type="text" id="calibreCateter" class="field-input"
                                             placeholder="Ej: 18, 20, 22">
                                     </div>
@@ -417,45 +434,45 @@
                             <h4 class="font-medium text-gray-800 mb-3">Información Médica</h4>
 
                             <div class="field-group">
-                                <label class="field-label">Diagnóstico Principal <span
-                                        title="Motivo principal de hospitalización o atención médica.">ℹ️</span></label>
+                                <label class="field-label">Diagnóstico Principal <span class="tooltip-trigger"
+                                        data-tooltip="Motivo principal de hospitalización o atención médica.">ℹ️</span></label>
                                 <textarea id="diagnosticoPrincipal" class="field-input" rows="2"
                                     placeholder="Ej: Postoperatorio de cirugía ortopédica de rodilla derecha"></textarea>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="field-group">
-                                    <label class="field-label">Fecha de cirugía <span
-                                            title="Fecha en la que se realizó el procedimiento quirúrgico.">ℹ️</span></label>
+                                    <label class="field-label">Fecha de cirugía <span class="tooltip-trigger"
+                                            data-tooltip="Fecha en la que se realizó el procedimiento quirúrgico.">ℹ️</span></label>
                                     <input type="date" id="fechaCirugia" class="field-input">
                                 </div>
 
                                 <div class="field-group">
-                                    <label class="field-label">Procedimientos realizados <span
-                                            title="Cirugías o intervenciones médicas aplicadas.">ℹ️</span></label>
+                                    <label class="field-label">Procedimientos realizados <span class="tooltip-trigger"
+                                            data-tooltip="Cirugías o intervenciones médicas aplicadas.">ℹ️</span></label>
                                     <input type="text" id="procedimientos" class="field-input"
                                         placeholder="Ej: artroscopia de rodilla">
                                 </div>
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Antecedentes médicos <span
-                                        title="Condiciones de salud previas relevantes (Ej: diabetes, hipertensión).">ℹ️</span></label>
+                                <label class="field-label">Antecedentes médicos <span class="tooltip-trigger"
+                                        data-tooltip="Condiciones de salud previas relevantes (Ej: diabetes, hipertensión).">ℹ️</span></label>
                                 <input type="text" id="antecedentes" class="field-input"
                                     placeholder="Ej: Diabetes tipo 2, hipertensión arterial">
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="field-group">
-                                    <label class="field-label">Tipo de dieta <span
-                                            title="Tipo de alimentación indicada por el equipo médico.">ℹ️</span></label>
+                                    <label class="field-label">Tipo de dieta <span class="tooltip-trigger"
+                                            data-tooltip="Tipo de alimentación indicada por el equipo médico.">ℹ️</span></label>
                                     <input type="text" id="tipoDieta" class="field-input"
                                         placeholder="Ej: hipoglucídica e hiposódica">
                                 </div>
 
                                 <div class="field-group">
-                                    <label class="field-label">Restricciones <span
-                                            title="Limitaciones físicas, alimenticias u otras indicadas por el médico.">ℹ️</span></label>
+                                    <label class="field-label">Restricciones <span class="tooltip-trigger"
+                                            data-tooltip="Limitaciones físicas, alimenticias u otras indicadas por el médico.">ℹ️</span></label>
                                     <input type="text" id="restricciones" class="field-input"
                                         placeholder="Ej: restricción de flexión de pierna">
                                 </div>
@@ -471,8 +488,8 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <div class="field-group">
-                                <label class="field-label">Frecuencia Cardíaca (lpm) <span
-                                        title="Latidos por minuto. Rango normal: 60–100 lpm.">ℹ️</span></label>
+                                <label class="field-label">Frecuencia Cardíaca (lpm) <span class="tooltip-trigger"
+                                        data-tooltip="Latidos por minuto. Rango normal: 60–100 lpm.">ℹ️</span></label>
                                 <input type="number" id="fc" class="field-input" placeholder="Ej: 60-100">
                             </div>
 
@@ -482,41 +499,41 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Temperatura (°C) <span
-                                        title="Valor corporal en grados Celsius. Normal: 36.0–37.5°C.">ℹ️</span></label>
+                                <label class="field-label">Temperatura (°C) <span class="tooltip-trigger"
+                                        data-tooltip="Valor corporal en grados Celsius. Normal: 36.0–37.5°C.">ℹ️</span></label>
                                 <input type="number" step="0.1" id="temperatura" class="field-input"
                                     placeholder="Ej: 36.5">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">SPO2 (%) <span
-                                        title="Saturación de oxígeno en sangre. Normal: 95–100%.">ℹ️</span></label>
+                                <label class="field-label">SPO2 (%) <span class="tooltip-trigger"
+                                        data-tooltip="Saturación de oxígeno en sangre. Normal: 95–100%.">ℹ️</span></label>
                                 <input type="number" id="spo2" class="field-input" placeholder="Ej: 95-100">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">PA Sistólica (mmHg) <span
-                                        title="Presión máxima durante el latido cardíaco.">ℹ️</span></label>
+                                <label class="field-label">PA Sistólica (mmHg) <span class="tooltip-trigger"
+                                        data-tooltip="Presión máxima durante el latido cardíaco.">ℹ️</span></label>
                                 <input type="number" id="paSistolica" class="field-input" placeholder="Ej: 120"
                                     onchange="calcularPAM()">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">PA Diastólica (mmHg) <span
-                                        title="Presión mínima entre latidos del corazón.">ℹ️</span></label>
+                                <label class="field-label">PA Diastólica (mmHg) <span class="tooltip-trigger"
+                                        data-tooltip="Presión mínima entre latidos del corazón.">ℹ️</span></label>
                                 <input type="number" id="paDiastolica" class="field-input" placeholder="Ej: 80"
                                     onchange="calcularPAM()">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Glucometría (mg/dL) <span
-                                        title="Nivel de glucosa en sangre. Normal: 70–100 mg/dL en ayunas.">ℹ️</span></label>
+                                <label class="field-label">Glucometría (mg/dL) <span class="tooltip-trigger"
+                                        data-tooltip="Nivel de glucosa en sangre. Normal: 70–100 mg/dL en ayunas.">ℹ️</span></label>
                                 <input type="number" id="glucometria" class="field-input" placeholder="Ej: >100">
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">EVA - Dolor (0-10) <span
-                                        title="Escala visual de dolor donde 0 es nada y 10 es el peor dolor imaginable.">ℹ️</span></label>
+                                <label class="field-label">EVA - Dolor (0-10) <span class="tooltip-trigger"
+                                        data-tooltip="Escala visual de dolor donde 0 es nada y 10 es el peor dolor imaginable.">ℹ️</span></label>
                                 <input type="number" min="0" max="10" id="eva" class="field-input" placeholder="0-10">
                             </div>
                         </div>
@@ -649,8 +666,8 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Llenado capilar <span
-                                        title="Tiempo que tarda la sangre en retornar al presionar una uña. Normal: < 2 segundos.">ℹ️</span></label>
+                                <label class="field-label">Llenado capilar <span class="tooltip-trigger"
+                                        data-tooltip="Tiempo que tarda la sangre en retornar al presionar una uña. Normal: < 2 segundos.">ℹ️</span></label>
                                 <select id="llenadoCapilar" class="field-input">
                                     <option value="< 2 segundos">
                                         < 2 segundos</option>
@@ -927,6 +944,8 @@
             } else {
                 document.getElementById('pamInfo').classList.add('hidden');
             }
+            calcularPAM();
+            evaluarEstabilidadHemodinamica();
         }
 
         function calcularPAMFinal() {
@@ -961,7 +980,7 @@
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="field-group">
-                <label class="field-label">Nombre del medicamento <span title="Nombre genérico o comercial del fármaco administrado.">ℹ️</span></label>
+                <label class="field-label">Nombre del medicamento <span class="tooltip-trigger" data-tooltip="Nombre genérico o comercial del fármaco administrado.">ℹ️</span></label>
                 <input type="text" id="nombreMed-${medicamentosCount}" class="field-input" placeholder="Ej: tramadol">
             </div>
             
@@ -971,7 +990,7 @@
             </div>
             
             <div class="field-group">
-                <label class="field-label">Vía de administración <span title="Ruta por la cual se administró el medicamento (IV, IM, VO, etc.).">ℹ️</span></label>
+                <label class="field-label">Vía de administración <span class="tooltip-trigger" data-tooltip="Ruta por la cual se administró el medicamento (IV, IM, VO, etc.).">ℹ️</span></label>
                 <select id="viaMed-${medicamentosCount}" class="field-input">
                     <option value="IV">Intravenosa (IV)</option>
                     <option value="IM">Intramuscular (IM)</option>
@@ -983,13 +1002,13 @@
             </div>
             
             <div class="field-group">
-                <label class="field-label">Hora de administración <span title="Hora exacta en que se aplicó el medicamento.">ℹ️</span></label>
+                <label class="field-label">Hora de administración <span class="tooltip-trigger" data-tooltip="Hora exacta en que se aplicó el medicamento.">ℹ️</span></label>
                 <input type="time" id="horaMed-${medicamentosCount}" class="field-input">
             </div>
         </div>
         
         <div class="field-group">
-            <label class="field-label">Observaciones del medicamento <span title="Efectos observados o reacciones tras la administración.">ℹ️</span></label>
+            <label class="field-label">Observaciones del medicamento <span class="tooltip-trigger" data-tooltip="Efectos observados o reacciones tras la administración.">ℹ️</span></label>
             <textarea id="obseMed-${medicamentosCount}" class="field-input" rows="2" placeholder="Efectos observados, reacciones, etc."></textarea>
         </div>
     `;
@@ -1062,16 +1081,18 @@
 
         // Generación de la nota
         function generarNota() {
+            // Evaluar estabilidad antes de generar la nota
+            evaluarEstabilidadHemodinamica();
+
             // Recopilar todos los datos
             const datos = recopilarDatos();
 
-            // Limpia errores anteriores
+            // Verifica campos obligatorios
             ['iniciales', 'edad', 'habitacion'].forEach(id => {
                 document.getElementById(id).classList.remove('input-error');
             });
 
             let camposInvalidos = [];
-
             if (!datos.iniciales) camposInvalidos.push('iniciales');
             if (!datos.edad) camposInvalidos.push('edad');
             if (!datos.habitacion) camposInvalidos.push('habitacion');
@@ -1082,7 +1103,6 @@
                 return;
             }
 
-
             // Generar la nota
             const nota = construirNota(datos);
 
@@ -1092,6 +1112,8 @@
             // Ir a la sección de la nota generada
             showSection(4);
         }
+
+
 
         function recopilarDatos() {
             const datos = {};
@@ -1329,7 +1351,13 @@
             }
 
             // Estado general y cierre
-            nota += `\n\nEl paciente se encuentra estable hemodinámicamente, sin presentar complicaciones durante el turno. Se entrega para continuidad de cuidados al siguiente turno.\n\n`;
+            if (esInestable) {
+                nota += `El paciente presenta inestabilidad hemodinámica durante el turno, siendo necesario monitoreo continuo y cuidados especiales. `;
+            } else {
+                nota += `El paciente se encuentra estable hemodinámicamente, sin presentar complicaciones durante el turno. `;
+            }
+
+            nota += `Se entrega para continuidad de cuidados al siguiente turno.\n\n`;
 
             // Firma
             nota += `_________________________________\n`;
@@ -1338,6 +1366,23 @@
 
             return nota;
         }
+
+
+        let esInestable = false; // Variable global
+
+        function evaluarEstabilidadHemodinamica() {
+            const pam = parseFloat(document.getElementById('pamValue')?.textContent || 0);
+            const fc = parseFloat(document.getElementById('fc')?.value || 0);
+            const spo2 = parseFloat(document.getElementById('spo2')?.value || 0);
+            const sistolica = parseFloat(document.getElementById('paSistolica')?.value || 0);
+
+            esInestable = false; // Reinicia el estado
+
+            if (pam < 60 || fc > 100 || spo2 < 90 || sistolica < 90) {
+                esInestable = true;
+            }
+        }
+
 
         // Funciones para la nota generada
         function copiarNota() {
@@ -1403,6 +1448,35 @@
                 btn.classList.add('hidden');
             }
         });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.tooltip-trigger').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    const tooltipText = e.target.getAttribute('data-tooltip');
+                    let tooltip = e.target.nextElementSibling;
+
+                    if (!tooltip || !tooltip.classList.contains('tooltip')) {
+                        tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.textContent = tooltipText;
+                        e.target.parentNode.appendChild(tooltip);
+                    }
+
+                    if (tooltip.classList.contains('hidden')) {
+                        tooltip.classList.remove('hidden');
+                    } else {
+                        tooltip.classList.add('hidden');
+                    }
+                });
+            });
+        });
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('tooltip-trigger')) {
+                document.querySelectorAll('.tooltip').forEach(tooltip => tooltip.classList.add('hidden'));
+            }
+        });
+
+
 
     </script>
 
