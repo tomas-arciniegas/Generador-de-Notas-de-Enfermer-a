@@ -608,8 +608,8 @@
                         <!-- Examen Físico -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div class="field-group">
-                                <label class="field-label">Pupilas <span
-                                        title="Observación del tamaño y respuesta de las pupilas a la luz.">ℹ️</span></label>
+                                <label class="field-label">Pupilas <span class="tooltip-trigger"
+                                    data-tooltip="Observación del tamaño y respuesta de las pupilas a la luz.">ℹ️</span></label>
                                 <select id="pupilas" class="field-input">
                                     <option value="isocóricas y reactivas">Isocóricas y reactivas</option>
                                     <option value="isocóricas">Isocóricas</option>
@@ -620,8 +620,8 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Mucosas <span
-                                        title="Aspecto de las mucosas orales: color, hidratación.">ℹ️</span></label>
+                                <label class="field-label">Mucosas <span class="tooltip-trigger"
+                                    data-tooltip="Aspecto de las mucosas orales: color, hidratación.">ℹ️</span></label>
                                 <select id="mucosas" class="field-input">
                                     <option value="húmedas y rosadas">Húmedas y rosadas</option>
                                     <option value="húmedas sin lesiones">Húmedas sin lesiones</option>
@@ -631,8 +631,8 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Ruidos cardíacos <span
-                                        title="Sonidos generados por el corazón al latir.">ℹ️</span></label>
+                                <label class="field-label">Ruidos cardíacos <span class="tooltip-trigger"
+                                    data-tooltip="Sonidos generados por el corazón al latir.">ℹ️</span></label>
                                 <select id="ruidosCardiacos" class="field-input">
                                     <option value="rítmicos, sin soplos">Rítmicos, sin soplos</option>
                                     <option value="arrítmicos, sin soplos">Arrítmicos, sin soplos</option>
@@ -643,8 +643,8 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Ruidos pulmonares <span
-                                        title="Sonidos que se escuchan al auscultar los pulmones.">ℹ️</span></label>
+                                <label class="field-label">Ruidos pulmonares <span class="tooltip-trigger"
+                                    data-tooltip="Sonidos que se escuchan al auscultar los pulmones.">ℹ️</span></label>
                                 <select id="ruidosPulmonares" class="field-input">
                                     <option value="normales en ambos campos">Normales en ambos campos</option>
                                     <option value="normales">Normales</option>
@@ -655,8 +655,8 @@
                             </div>
 
                             <div class="field-group">
-                                <label class="field-label">Abdomen <span
-                                        title="Estado físico del abdomen: blando, distendido, doloroso, etc.">ℹ️</span></label>
+                                <label class="field-label">Abdomen <span class="tooltip-trigger"
+                                    data-tooltip="Estado físico del abdomen: blando, distendido, doloroso, etc.">ℹ️</span></label>
                                 <select id="abdomen" class="field-input">
                                     <option value="blando, depresible, sin dolor">Blando, depresible, sin dolor</option>
                                     <option value="sin distensión">Sin distensión</option>
@@ -963,58 +963,62 @@
 
         // Gestión de medicamentos
         function agregarMedicamento() {
-            medicamentosCount++;
-            const container = document.getElementById('medicamentosContainer');
+    medicamentosCount++;
+    const container = document.getElementById('medicamentosContainer');
 
-            const medicamentoDiv = document.createElement('div');
-            medicamentoDiv.className = 'medicamento-item';
-            medicamentoDiv.id = `medicamento-${medicamentosCount}`;
+    const medicamentoDiv = document.createElement('div');
+    medicamentoDiv.className = 'medicamento-item';
+    medicamentoDiv.id = `medicamento-${medicamentosCount}`;
 
-            medicamentoDiv.innerHTML = `
-        <div class="flex justify-between items-center mb-3">
-            <h5 class="font-medium text-gray-700">Medicamento ${medicamentosCount}</h5>
-            <button onclick="eliminarMedicamento(${medicamentosCount})" class="btn-danger">
-                🗑️ Eliminar
-            </button>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="field-group">
-                <label class="field-label">Nombre del medicamento <span class="tooltip-trigger" data-tooltip="Nombre genérico o comercial del fármaco administrado.">ℹ️</span></label>
-                <input type="text" id="nombreMed-${medicamentosCount}" class="field-input" placeholder="Ej: tramadol">
-            </div>
-            
-            <div class="field-group">
-                <label class="field-label">Dosis</label>
-                <input type="text" id="dosisMed-${medicamentosCount}" class="field-input" placeholder="Ej: 50 mg">
-            </div>
-            
-            <div class="field-group">
-                <label class="field-label">Vía de administración <span class="tooltip-trigger" data-tooltip="Ruta por la cual se administró el medicamento (IV, IM, VO, etc.).">ℹ️</span></label>
-                <select id="viaMed-${medicamentosCount}" class="field-input">
-                    <option value="IV">Intravenosa (IV)</option>
-                    <option value="IM">Intramuscular (IM)</option>
-                    <option value="SC">Subcutánea (SC)</option>
-                    <option value="VO">Vía oral (VO)</option>
-                    <option value="SL">Sublingual (SL)</option>
-                    <option value="tópica">Tópica</option>
-                </select>
-            </div>
-            
-            <div class="field-group">
-                <label class="field-label">Hora de administración <span class="tooltip-trigger" data-tooltip="Hora exacta en que se aplicó el medicamento.">ℹ️</span></label>
-                <input type="time" id="horaMed-${medicamentosCount}" class="field-input">
-            </div>
+    medicamentoDiv.innerHTML = `
+    <div class="flex justify-between items-center mb-3">
+        <h5 class="font-medium text-gray-700">Medicamento ${medicamentosCount}</h5>
+        <button onclick="eliminarMedicamento(${medicamentosCount})" class="btn-danger">
+            🗑️ Eliminar
+        </button>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="field-group">
+            <label class="field-label">Nombre del medicamento <span class="tooltip-trigger" data-tooltip="Nombre genérico o comercial del fármaco administrado.">ℹ️</span></label>
+            <input type="text" id="nombreMed-${medicamentosCount}" class="field-input" placeholder="Ej: tramadol">
         </div>
         
         <div class="field-group">
-            <label class="field-label">Observaciones del medicamento <span class="tooltip-trigger" data-tooltip="Efectos observados o reacciones tras la administración.">ℹ️</span></label>
-            <textarea id="obseMed-${medicamentosCount}" class="field-input" rows="2" placeholder="Efectos observados, reacciones, etc."></textarea>
+            <label class="field-label">Dosis</label>
+            <input type="text" id="dosisMed-${medicamentosCount}" class="field-input" placeholder="Ej: 50 mg">
         </div>
+        
+        <div class="field-group">
+            <label class="field-label">Vía de administración <span class="tooltip-trigger" data-tooltip="Ruta por la cual se administró el medicamento (IV, IM, VO, etc.).">ℹ️</span></label>
+            <select id="viaMed-${medicamentosCount}" class="field-input">
+                <option value="IV">Intravenosa (IV)</option>
+                <option value="IM">Intramuscular (IM)</option>
+                <option value="SC">Subcutánea (SC)</option>
+                <option value="VO">Vía oral (VO)</option>
+                <option value="SL">Sublingual (SL)</option>
+                <option value="tópica">Tópica</option>
+            </select>
+        </div>
+        
+        <div class="field-group">
+            <label class="field-label">Hora de administración <span class="tooltip-trigger" data-tooltip="Hora exacta en que se aplicó el medicamento.">ℹ️</span></label>
+            <input type="time" id="horaMed-${medicamentosCount}" class="field-input">
+        </div>
+    </div>
+    
+    <div class="field-group">
+        <label class="field-label">Observaciones del medicamento <span class="tooltip-trigger" data-tooltip="Efectos observados o reacciones tras la administración.">ℹ️</span></label>
+        <textarea id="obseMed-${medicamentosCount}" class="field-input" rows="2" placeholder="Efectos observados, reacciones, etc."></textarea>
+    </div>
     `;
 
-            container.appendChild(medicamentoDiv);
-        }
+    container.appendChild(medicamentoDiv);
+
+    // Inicializar tooltips en los nuevos elementos
+    inicializarTooltips();
+}
+
 
         function eliminarMedicamento(id) {
             const medicamento = document.getElementById(`medicamento-${id}`);
@@ -1025,14 +1029,14 @@
 
         // Gestión de eventos
         function agregarEvento() {
-            eventosCount++;
-            const container = document.getElementById('eventosContainer');
+    eventosCount++;
+    const container = document.getElementById('eventosContainer');
 
-            const eventoDiv = document.createElement('div');
-            eventoDiv.className = 'evento-item';
-            eventoDiv.id = `evento-${eventosCount}`;
+    const eventoDiv = document.createElement('div');
+    eventoDiv.className = 'evento-item';
+    eventoDiv.id = `evento-${eventosCount}`;
 
-            eventoDiv.innerHTML = `
+    eventoDiv.innerHTML = `
         <div class="flex justify-between items-center mb-3">
             <h5 class="font-medium text-gray-700">Evento ${eventosCount}</h5>
             <button onclick="eliminarEvento(${eventosCount})" class="btn-danger">
@@ -1047,7 +1051,9 @@
             </div>
             
             <div class="field-group">
-                <label class="field-label">Tipo de evento <span title="Categoría del procedimiento o acción realizada.">ℹ️</span></label>
+                <label class="field-label">Tipo de evento 
+                    <span class="tooltip-trigger" data-tooltip="Categoría del procedimiento o acción realizada.">ℹ️</span>
+                </label>
                 <select id="tipoEvento-${eventosCount}" class="field-input">
                     <option value="administración de medicamento">Administración de medicamento</option>
                     <option value="toma de signos vitales">Toma de signos vitales</option>
@@ -1064,13 +1070,19 @@
         </div>
         
         <div class="field-group">
-            <label class="field-label">Descripción del evento <span title="Detalles sobre lo realizado, cómo y cuándo.">ℹ️</span></label>
+            <label class="field-label">Descripción del evento 
+                <span class="tooltip-trigger" data-tooltip="Detalles sobre lo realizado, cómo y cuándo.">ℹ️</span>
+            </label>
             <textarea id="descripcionEvento-${eventosCount}" class="field-input" rows="3" placeholder="Describe detalladamente lo ocurrido durante este evento..."></textarea>
         </div>
     `;
 
-            container.appendChild(eventoDiv);
-        }
+    container.appendChild(eventoDiv);
+
+    // Inicializar tooltips en los nuevos elementos
+    inicializarTooltips();
+}
+
 
         function eliminarEvento(id) {
             const evento = document.getElementById(`evento-${id}`);
@@ -1476,6 +1488,30 @@
             }
         });
 
+        function inicializarTooltips() {
+    document.querySelectorAll('.tooltip-trigger').forEach(element => {
+        element.addEventListener('click', (e) => {
+            const tooltipText = e.target.getAttribute('data-tooltip');
+            let tooltip = e.target.nextElementSibling;
+
+            if (!tooltip || !tooltip.classList.contains('tooltip')) {
+                tooltip = document.createElement('div');
+                tooltip.className = 'tooltip';
+                tooltip.textContent = tooltipText;
+                e.target.parentNode.appendChild(tooltip);
+            }
+
+            if (tooltip.classList.contains('hidden')) {
+                tooltip.classList.remove('hidden');
+            } else {
+                tooltip.classList.add('hidden');
+            }
+        });
+    });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    inicializarTooltips();
+});
 
 
     </script>
