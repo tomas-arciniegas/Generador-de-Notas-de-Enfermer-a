@@ -318,11 +318,11 @@
                         onclick="showSection(3)">
                         <span>📝</span> Eventos del Turno
                     </button>
-                    <button
+                    <button 
                         class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
-                        onclick="showSection(4)">
+                        onclick="generarNota()">
                         <span>📄</span> Nota Generada
-                    </button>
+                      </button>
                 </div>
             </div>
 
@@ -1934,6 +1934,55 @@
                     break;
             }
         });
+
+
+        // Validación para evitar ir a la sección 4 sin datos mínimos
+        function showSection(sectionIndex) {
+            if (sectionIndex === 4) {
+                const campos = ['iniciales', 'edad', 'habitacion'];
+                let faltantes = [];
+
+                campos.forEach(id => {
+                    const campo = document.getElementById(id);
+                    campo.classList.remove('input-error'); // limpia errores previos
+
+                    if (!campo.value.trim()) {
+                        campo.classList.add('input-error');
+                        faltantes.push(id);
+                    }
+                });
+
+                if (faltantes.length > 0) {
+                    alert("Por favor completa los campos mínimos requeridos antes de continuar:\n- Iniciales\n- Edad\n- Habitación");
+                    return;
+                }
+            }
+
+
+            // Ocultar todas las secciones
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('section-active');
+            });
+
+            // Mostrar la sección seleccionada
+            const selectedSection = document.getElementById(`section-${sectionIndex}`);
+            selectedSection.classList.remove('hidden');
+            selectedSection.classList.add('section-active', 'fade-in');
+
+            // Actualizar navegación
+            document.querySelectorAll('.nav-button').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if (index === sectionIndex) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Actualizar progreso
+            currentSection = sectionIndex;
+            updateNavigationButtons();
+            actualizarBarraProgreso();
+        }
 
     </script>
 
