@@ -285,7 +285,7 @@
 
 </head>
 
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen" id="body">
     <div class="max-w-6xl mx-auto p-4 md:p-6">
         <div class="bg-white rounded-lg shadow-lg">
             <!-- Header -->
@@ -538,7 +538,7 @@
                             <div class="field-group">
                                 <label class="field-label">Glucometría (mg/dL) <span class="tooltip-trigger"
                                         data-tooltip="Nivel de glucosa en sangre. Normal: 70–100 mg/dL en ayunas.">ℹ️</span></label>
-                                <input type="number" id="glucometria" class="field-input" placeholder="Ej: >100">
+                                <input type="number" id="glucometria" class="field-input" placeholder="Ej: 70-100">
                             </div>
 
                             <div class="field-group">
@@ -628,7 +628,7 @@
                                 <div class="field-group">
                                     <label class="field-label">Glucometría Final</label>
                                     <input type="number" id="glucometriaFinal" oninput="mostrarSugerenciasEnPantalla()"
-                                        class="field-input" placeholder="Ej: >100">
+                                        class="field-input" placeholder="Ej: 70-100">
                                 </div>
 
                                 <div class="field-group">
@@ -825,9 +825,9 @@
                                     <button type="button" onclick="iniciarDictadoEnTextarea(this)" class="btn-primary mt-1">
                                         🎤 Dictar Texto
                                       </button>
-                                      
                             </div>
                         </div>
+
                         <button onclick="generarNota()" class="btn-secondary mb-4">
                             👁 Ver vista previa
                         </button>
