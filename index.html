@@ -318,11 +318,11 @@
                         onclick="showSection(3)">
                         <span>📝</span> Eventos del Turno
                     </button>
-                    <button 
+                    <button
                         class="nav-button flex items-center gap-2 px-3 md:px-4 py-3 min-w-max text-sm font-medium border-b-2 border-transparent transition-colors hover:bg-gray-100"
                         onclick="generarNota()">
                         <span>📄</span> Nota Generada
-                      </button>
+                    </button>
                 </div>
             </div>
 
@@ -590,7 +590,8 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div class="field-group">
                                     <label class="field-label">FC Final (lpm)</label>
-                                    <input type="number" id="fcFinal" class="field-input" placeholder="Ej: 60-100">
+                                    <input type="number" id="fcFinal" oninput="mostrarSugerenciasEnPantalla()"
+                                        class="field-input" placeholder="Ej: 60-100">
                                 </div>
 
                                 <div class="field-group">
@@ -600,43 +601,52 @@
 
                                 <div class="field-group">
                                     <label class="field-label">Temperatura Final (°C)</label>
-                                    <input type="number" step="0.1" id="temperaturaFinal" class="field-input"
+                                    <input type="number" step="0.1" id="temperaturaFinal"
+                                        oninput="mostrarSugerenciasEnPantalla()" class="field-input"
                                         placeholder="Ej: 36.5">
                                 </div>
 
                                 <div class="field-group">
                                     <label class="field-label">SPO2 Final (%)</label>
-                                    <input type="number" id="spo2Final" class="field-input" placeholder="Ej: 95-100">
+                                    <input type="number" id="spo2Final" class="field-input"
+                                        oninput="mostrarSugerenciasEnPantalla()" placeholder="Ej: 95-100">
                                 </div>
 
                                 <div class="field-group">
                                     <label class="field-label">PA Sistólica Final</label>
-                                    <input type="number" id="paSistolicaFinal" class="field-input" placeholder="Ej: 120"
+                                    <input type="number" id="paSistolicaFinal" class="field-input"
+                                        oninput="mostrarSugerenciasEnPantalla()" placeholder="Ej: 120"
                                         onchange="calcularPAMFinal()">
                                 </div>
 
                                 <div class="field-group">
                                     <label class="field-label">PA Diastólica Final</label>
-                                    <input type="number" id="paDiastolicaFinal" class="field-input" placeholder="Ej: 80"
-                                        onchange="calcularPAMFinal()">
+                                    <input type="number" id="paDiastolicaFinal" oninput="mostrarSugerenciasEnPantalla()"
+                                        class="field-input" placeholder="Ej: 80" onchange="calcularPAMFinal()">
                                 </div>
 
                                 <div class="field-group">
                                     <label class="field-label">Glucometría Final</label>
-                                    <input type="number" id="glucometriaFinal" class="field-input"
-                                        placeholder="Ej: >100">
+                                    <input type="number" id="glucometriaFinal" oninput="mostrarSugerenciasEnPantalla()"
+                                        class="field-input" placeholder="Ej: >100">
                                 </div>
 
                                 <div class="field-group">
                                     <label class="field-label">EVA Final</label>
-                                    <input type="number" min="0" max="10" id="evaFinal" class="field-input"
-                                        placeholder="0-10">
+                                    <input type="number" min="0" max="10" id="evaFinal"
+                                        oninput="mostrarSugerenciasEnPantalla()" class="field-input" placeholder="0-10">
                                 </div>
                             </div>
 
                             <div id="pamFinalInfo" class="alert-info hidden">
                                 <p>PAM final calculada: <span id="pamFinalValue"></span> mmHg</p>
                             </div>
+
+                            <div id="sugerenciasInfo" class="alert-info hidden mt-3">
+                                <p class="font-bold">Sugerencias clínicas:</p>
+                                <ul id="sugerenciasLista" class="list-disc list-inside text-sm text-gray-800"></ul>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -906,8 +916,8 @@
             <span class="block">📝 <kbd>Alt</kbd> + <kbd>G</kbd> — Generar nota</span>
             <span class="block">📄 <kbd>Alt</kbd> + <kbd>E</kbd> — Exportar como Excel</span>
             <span class="block">📋 <kbd>Alt</kbd> + <kbd>M</kbd> — Copiar al portapapeles</span>
-          </p>
-          
+        </p>
+
     </footer>
 
     <script>
@@ -1165,6 +1175,9 @@
                 <span class="tooltip-trigger" data-tooltip="Detalles sobre lo realizado, cómo y cuándo.">ℹ️</span>
             </label>
             <textarea id="descripcionEvento-${eventosCount}" class="field-input" rows="3" placeholder="Describe detalladamente lo ocurrido durante este evento..."></textarea>
+            <button type="button" onclick="iniciarDictadoEnTextarea(this)" class="btn-primary mt-1">
+            🎤 Dictar Texto
+            </button>
         </div>
     `;
 
@@ -1550,6 +1563,83 @@
 
             return justificaciones.join(", ");
         }
+
+        // Funciones mostrar Sugerencias
+        function mostrarSugerenciasEnPantalla() {
+            const datos = recopilarDatos();
+            const sugerencias = [];
+
+            // Temperatura
+            if (datos.temperaturaFinal >= 38) {
+                sugerencias.push("🌡️ Temperatura elevada. Posible fiebre.");
+            } else if (datos.temperaturaFinal <= 35) {
+                sugerencias.push("❄️ Hipotermia. Revisar condiciones del paciente.");
+            }
+
+            // Presión arterial media
+            if (datos.pamFinal < 60) {
+                sugerencias.push("⚠️ PAM final baja. Posible hipotensión.");
+            }
+
+            // FC
+            if (datos.fcFinal >= 100) {
+                sugerencias.push("💓 Taquicardia. Frecuencia cardíaca elevada.");
+            } else if (datos.fcFinal < 60) {
+                sugerencias.push("🫀 Bradicardia. Frecuencia cardíaca baja.");
+            }
+
+            // FR
+            if (datos.frFinal >= 24) {
+                sugerencias.push("🌬️ Taquipnea. Frecuencia respiratoria elevada.");
+            } else if (datos.frFinal < 12) {
+                sugerencias.push("😮‍💨 Bradipnea. FR disminuida.");
+            }
+
+            // SpO2
+            if (datos.spo2Final < 90) {
+                sugerencias.push("🩸 Saturación crítica (<90%).");
+            } else if (datos.spo2Final < 94) {
+                sugerencias.push("🩹 Saturación ligeramente baja (<94%).");
+            }
+
+            // PA sistólica
+            if (datos.paSistolicaFinal < 90) {
+                sugerencias.push("📉 PA sistólica baja (<90 mmHg).");
+            } else if (datos.paSistolicaFinal > 140) {
+                sugerencias.push("📈 PA sistólica elevada (>140 mmHg).");
+            }
+
+            // PA diastólica
+            if (datos.paDiastolicaFinal < 60) {
+                sugerencias.push("📉 PA diastólica baja (<60 mmHg).");
+            } else if (datos.paDiastolicaFinal > 90) {
+                sugerencias.push("📈 PA diastólica elevada (>90 mmHg).");
+            }
+
+            // EVA
+            if (datos.evaFinal >= 7) {
+                sugerencias.push("⚠️ Dolor severo (EVA ≥ 7). Evaluar analgesia.");
+            } else if (datos.evaFinal >= 4) {
+                sugerencias.push("⚠️ Dolor moderado (EVA ≥ 4). Valorar intervención.");
+            }
+
+            // Mostrar en pantalla
+            const divInfo = document.getElementById("sugerenciasInfo");
+            const lista = document.getElementById("sugerenciasLista");
+            lista.innerHTML = "";
+
+            if (sugerencias.length > 0) {
+                sugerencias.forEach(msg => {
+                    const li = document.createElement("li");
+                    li.textContent = msg;
+                    lista.appendChild(li);
+                });
+                divInfo.classList.remove("hidden");
+            } else {
+                divInfo.classList.add("hidden");
+            }
+        }
+
 
 
         // Funciones para la nota generada
@@ -1990,6 +2080,23 @@
             updateNavigationButtons();
             actualizarBarraProgreso();
         }
+
+        // Dictado por voz (para eventos y medicamentos)
+        function iniciarDictadoEnTextarea(boton) {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'es-ES';
+
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript;
+                const textarea = boton.previousElementSibling;
+                if (textarea && textarea.tagName === "TEXTAREA") {
+                    textarea.value += (textarea.value ? '\n' : '') + transcript;
+                }
+            };
+
+            recognition.start();
+        }
+
 
     </script>
 
