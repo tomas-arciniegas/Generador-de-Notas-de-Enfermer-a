@@ -822,6 +822,10 @@
                                 <label class="field-label">Observaciones generales</label>
                                 <textarea id="observaciones" class="field-input" rows="4"
                                     placeholder="Observaciones generales, recomendaciones especiales, estado general del paciente..."></textarea>
+                                    <button type="button" onclick="iniciarDictadoEnTextarea(this)" class="btn-primary mt-1">
+                                        🎤 Dictar Texto
+                                      </button>
+                                      
                             </div>
                         </div>
                         <button onclick="generarNota()" class="btn-secondary mb-4">
@@ -2081,7 +2085,7 @@
             actualizarBarraProgreso();
         }
 
-        // Dictado por voz (para eventos y medicamentos)
+        // Dictado por voz (para eventos y  tos)
         function iniciarDictadoEnTextarea(boton) {
             const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
             recognition.lang = 'es-ES';
