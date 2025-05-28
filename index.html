@@ -7,6 +7,8 @@
     <title>Generador de Notas de Enfermería</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
     <style>
         .hidden {
             display: none;
@@ -270,6 +272,14 @@
 
         .tooltip.hidden {
             display: none;
+        }
+
+        .field-input {
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .field-input:focus {
+            outline: none;
         }
     </style>
 
@@ -538,9 +548,40 @@
                             </div>
                         </div>
 
-                        <div id="pamInfo" class="alert-info hidden">
+                        <div id="pamInfo" class="alert-info hidden" role="alert" aria-live="polite">
                             <p>PAM calculada: <span id="pamValue"></span> mmHg</p>
                         </div>
+
+                        <!-- Cálculo de IMC (opcional) -->
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Índice de Masa Corporal (IMC)</h4>
+
+                            <div class="field-group">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="mostrarIMC" class="mr-2" onchange="toggleIMC()">
+                                    <span class="field-label mb-0">¿Desea registrar el IMC?</span>
+                                </label>
+                            </div>
+
+                            <div id="seccionIMC" class="hidden">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="field-group">
+                                        <label class="field-label" for="peso">Peso (kg)</label>
+                                        <input type="number" id="peso" class="field-input" placeholder="Ej: 70">
+                                    </div>
+                                    <div class="field-group">
+                                        <label class="field-label" for="talla">Talla (cm)</label>
+                                        <input type="number" id="talla" class="field-input" placeholder="Ej: 170">
+                                    </div>
+                                    <div class="field-group flex items-end">
+                                        <button onclick="calcularIMC()" class="btn-primary w-full">Calcular IMC</button>
+                                    </div>
+                                </div>
+                                <div id="resultadoIMC" class="mt-3 text-sm text-gray-700 font-medium" role="alert"
+                                    aria-live="polite"></div>
+                            </div>
+                        </div>
+
 
                         <!-- Signos Vitales de Entrega -->
                         <div class="border-t pt-4 mt-6">
@@ -549,7 +590,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div class="field-group">
                                     <label class="field-label">FC Final (lpm)</label>
-                                    <input type="number" id="fcFinal" class="field-input" placeholder="Ej: 95-100">
+                                    <input type="number" id="fcFinal" class="field-input" placeholder="Ej: 60-100">
                                 </div>
 
                                 <div class="field-group">
@@ -609,7 +650,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <div class="field-group">
                                 <label class="field-label">Pupilas <span class="tooltip-trigger"
-                                    data-tooltip="Observación del tamaño y respuesta de las pupilas a la luz.">ℹ️</span></label>
+                                        data-tooltip="Observación del tamaño y respuesta de las pupilas a la luz.">ℹ️</span></label>
                                 <select id="pupilas" class="field-input">
                                     <option value="isocóricas y reactivas">Isocóricas y reactivas</option>
                                     <option value="isocóricas">Isocóricas</option>
@@ -621,7 +662,7 @@
 
                             <div class="field-group">
                                 <label class="field-label">Mucosas <span class="tooltip-trigger"
-                                    data-tooltip="Aspecto de las mucosas orales: color, hidratación.">ℹ️</span></label>
+                                        data-tooltip="Aspecto de las mucosas orales: color, hidratación.">ℹ️</span></label>
                                 <select id="mucosas" class="field-input">
                                     <option value="húmedas y rosadas">Húmedas y rosadas</option>
                                     <option value="húmedas sin lesiones">Húmedas sin lesiones</option>
@@ -632,7 +673,7 @@
 
                             <div class="field-group">
                                 <label class="field-label">Ruidos cardíacos <span class="tooltip-trigger"
-                                    data-tooltip="Sonidos generados por el corazón al latir.">ℹ️</span></label>
+                                        data-tooltip="Sonidos generados por el corazón al latir.">ℹ️</span></label>
                                 <select id="ruidosCardiacos" class="field-input">
                                     <option value="rítmicos, sin soplos">Rítmicos, sin soplos</option>
                                     <option value="arrítmicos, sin soplos">Arrítmicos, sin soplos</option>
@@ -644,7 +685,7 @@
 
                             <div class="field-group">
                                 <label class="field-label">Ruidos pulmonares <span class="tooltip-trigger"
-                                    data-tooltip="Sonidos que se escuchan al auscultar los pulmones.">ℹ️</span></label>
+                                        data-tooltip="Sonidos que se escuchan al auscultar los pulmones.">ℹ️</span></label>
                                 <select id="ruidosPulmonares" class="field-input">
                                     <option value="normales en ambos campos">Normales en ambos campos</option>
                                     <option value="normales">Normales</option>
@@ -656,7 +697,7 @@
 
                             <div class="field-group">
                                 <label class="field-label">Abdomen <span class="tooltip-trigger"
-                                    data-tooltip="Estado físico del abdomen: blando, distendido, doloroso, etc.">ℹ️</span></label>
+                                        data-tooltip="Estado físico del abdomen: blando, distendido, doloroso, etc.">ℹ️</span></label>
                                 <select id="abdomen" class="field-input">
                                     <option value="blando, depresible, sin dolor">Blando, depresible, sin dolor</option>
                                     <option value="sin distensión">Sin distensión</option>
@@ -702,6 +743,42 @@
                                     <textarea id="detallesTerapia" class="field-input" rows="3"
                                         placeholder="Ej: se asiste al paciente para deambulación, realizando ejercicios de flexión..."></textarea>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="font-medium text-gray-800 mb-3">Control de Líquidos</h4>
+                            <div class="field-group">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="realizarControlLiquidos" class="mr-2"
+                                        onchange="toggleControlLiquidos()">
+                                    <span class="field-label mb-0">¿Se realizó control de líquidos?</span>
+                                </label>
+                            </div>
+
+                            <div id="controlLiquidosFields" class="hidden mt-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="field-group">
+                                        <label class="field-label">Líquidos Administrados (mL)</label>
+                                        <input type="number" id="liquidosAdministrados" class="field-input"
+                                            placeholder="Ej: 1500" min="0">
+                                    </div>
+                                    <div class="field-group">
+                                        <label class="field-label">Líquidos Eliminados (mL)</label>
+                                        <input type="number" id="liquidosEliminados" class="field-input"
+                                            placeholder="Ej: 1200" min="0">
+                                    </div>
+                                </div>
+
+                                <div class="field-group mt-3 relative">
+                                    <label class="field-label">
+                                        Balance Hídrico (mL)
+                                        <span class="tooltip-trigger"
+                                            data-tooltip="El balance hídrico es la diferencia entre líquidos administrados y eliminados. Valores positivos indican exceso, negativos indican déficit.">ℹ️</span>
+                                    </label>
+                                    <input type="text" id="balanceHidrico" class="field-input bg-gray-200" readonly>
+                                </div>
+
                             </div>
                         </div>
 
@@ -772,6 +849,12 @@
                                 📄 Exportar como PDF
                             </button>
 
+                            <button onclick="exportarComoXLSXBonito()" class="btn-success">
+                                📊 Exportar Excel (.xlsx)
+                            </button>
+
+
+
                         </div>
                     </div>
                 </div>
@@ -801,7 +884,7 @@
         </div>
     </div>
 
-    <button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+    <button id="scrollTopBtn" aria-label="Volver arriba" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
         class="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg z-50 hidden">
         ⬆️
     </button>
@@ -817,6 +900,7 @@
             class="text-blue-500 hover:underline text-xs md:text-sm">
             Visita mi portafolio
         </a>
+        <p class="text-gray-400 text-xs">Atajos rápidos: Alt+1/2/3/4/5, Alt+M, Alt+E, Alt+G</p>
     </footer>
 
     <script>
@@ -963,14 +1047,14 @@
 
         // Gestión de medicamentos
         function agregarMedicamento() {
-    medicamentosCount++;
-    const container = document.getElementById('medicamentosContainer');
+            medicamentosCount++;
+            const container = document.getElementById('medicamentosContainer');
 
-    const medicamentoDiv = document.createElement('div');
-    medicamentoDiv.className = 'medicamento-item';
-    medicamentoDiv.id = `medicamento-${medicamentosCount}`;
+            const medicamentoDiv = document.createElement('div');
+            medicamentoDiv.className = 'medicamento-item';
+            medicamentoDiv.id = `medicamento-${medicamentosCount}`;
 
-    medicamentoDiv.innerHTML = `
+            medicamentoDiv.innerHTML = `
     <div class="flex justify-between items-center mb-3">
         <h5 class="font-medium text-gray-700">Medicamento ${medicamentosCount}</h5>
         <button onclick="eliminarMedicamento(${medicamentosCount})" class="btn-danger">
@@ -1013,11 +1097,11 @@
     </div>
     `;
 
-    container.appendChild(medicamentoDiv);
+            container.appendChild(medicamentoDiv);
 
-    // Inicializar tooltips en los nuevos elementos
-    inicializarTooltips();
-}
+            // Inicializar tooltips en los nuevos elementos
+            inicializarTooltips();
+        }
 
 
         function eliminarMedicamento(id) {
@@ -1029,14 +1113,14 @@
 
         // Gestión de eventos
         function agregarEvento() {
-    eventosCount++;
-    const container = document.getElementById('eventosContainer');
+            eventosCount++;
+            const container = document.getElementById('eventosContainer');
 
-    const eventoDiv = document.createElement('div');
-    eventoDiv.className = 'evento-item';
-    eventoDiv.id = `evento-${eventosCount}`;
+            const eventoDiv = document.createElement('div');
+            eventoDiv.className = 'evento-item';
+            eventoDiv.id = `evento-${eventosCount}`;
 
-    eventoDiv.innerHTML = `
+            eventoDiv.innerHTML = `
         <div class="flex justify-between items-center mb-3">
             <h5 class="font-medium text-gray-700">Evento ${eventosCount}</h5>
             <button onclick="eliminarEvento(${eventosCount})" class="btn-danger">
@@ -1077,11 +1161,11 @@
         </div>
     `;
 
-    container.appendChild(eventoDiv);
+            container.appendChild(eventoDiv);
 
-    // Inicializar tooltips en los nuevos elementos
-    inicializarTooltips();
-}
+            // Inicializar tooltips en los nuevos elementos
+            inicializarTooltips();
+        }
 
 
         function eliminarEvento(id) {
@@ -1141,6 +1225,19 @@
             datos.glasgow = document.getElementById('glasgow').value;
             datos.posicion = document.getElementById('posicion').value;
             datos.barandas = document.getElementById('barandas').checked;
+
+            // control liquidos
+            datos.realizarControlLiquidos = document.getElementById('realizarControlLiquidos').checked;
+
+            if (datos.realizarControlLiquidos) {
+                datos.liquidosAdministrados = parseFloat(document.getElementById('liquidosAdministrados').value) || 0;
+                datos.liquidosEliminados = parseFloat(document.getElementById('liquidosEliminados').value) || 0;
+                datos.balanceHidrico = parseFloat(document.getElementById('balanceHidrico').value) || 0;
+            } else {
+                datos.liquidosAdministrados = 0;
+                datos.liquidosEliminados = 0;
+                datos.balanceHidrico = null;
+            }
 
             // Acceso venoso
             datos.tieneAccesoVenoso = document.getElementById('tieneAccesoVenoso').checked;
@@ -1219,6 +1316,13 @@
             });
 
             datos.observaciones = document.getElementById('observaciones').value;
+
+            // datos imc
+            datos.imc = {
+                peso: document.getElementById("peso")?.value || '',
+                talla: document.getElementById("talla")?.value || '',
+                resultado: document.getElementById("resultadoIMC")?.textContent || ''
+            };
 
             return datos;
         }
@@ -1302,6 +1406,10 @@
             if (datos.evaluacionNutricional) {
                 nota += `En cuanto a la evaluación nutricional, ${datos.evaluacionNutricional}. `;
             }
+            // Mostrar IMC si fue registrado
+            if (datos.imc && datos.imc.resultado) {
+                nota += `Se registró un Índice de Masa Corporal (IMC) con los siguientes datos: peso de ${datos.imc.peso} kg, talla de ${datos.imc.talla} cm. Resultado: ${datos.imc.resultado}. `;
+            }
 
             // Medicamentos y eventos del turno en formato narrativo
             if (datos.medicamentos.length > 0 || datos.eventos.length > 0) {
@@ -1340,6 +1448,15 @@
 
             nota += `\n\n`;
 
+            // Terapia física
+            if (datos.realizarControlLiquidos) {
+                nota += `Ademas se realizó un control de líquidos durante el turno, con un ingreso total de ${datos.liquidosAdministrados} mL `;
+                nota += `y una eliminación de ${datos.liquidosEliminados} mL. El balance hídrico fue de ${datos.balanceHidrico} mL. `;
+            } else {
+                nota += `En el turno no se realizó control de líquidos. `;
+            }
+
+
             // Signos vitales de entrega
             if (datos.fcFinal || datos.frFinal || datos.temperaturaFinal || datos.spo2Final ||
                 datos.paSistolicaFinal || datos.paDiastolicaFinal || datos.glucometriaFinal || datos.evaFinal) {
@@ -1364,7 +1481,11 @@
 
             // Estado general y cierre
             if (esInestable) {
-                nota += `El paciente presenta inestabilidad hemodinámica durante el turno, siendo necesario monitoreo continuo y cuidados especiales. `;
+                nota += `El paciente presenta inestabilidad hemodinámica durante el turno. `;
+                const justificacionEstabilidad = evaluarEstabilidadHemodinamica();
+                if (justificacionEstabilidad) {
+                    nota += `Motivo(s): ${justificacionEstabilidad}. `;
+                }
             } else {
                 nota += `El paciente se encuentra estable hemodinámicamente, sin presentar complicaciones durante el turno. `;
             }
@@ -1385,14 +1506,42 @@
         function evaluarEstabilidadHemodinamica() {
             const pam = parseFloat(document.getElementById('pamFinalValue')?.textContent || 0);
             const fc = parseFloat(document.getElementById('fcFinal')?.value || 0);
-            const spo2 = parseFloat(document.getElementById('spo2final')?.value || 0);
-            const sistolica = parseFloat(document.getElementById('paSistolicafinal')?.value || 0);
+            const spo2 = parseFloat(document.getElementById('spo2Final')?.value || 0);
+            const sistolica = parseFloat(document.getElementById('paSistolicaFinal')?.value || 0);
+            const temperatura = parseFloat(document.getElementById('temperaturaFinal')?.value || 0);
 
             esInestable = false; // Reinicia el estado
+            let justificaciones = [];
 
-            if (pam < 60 || fc > 100 || spo2 < 90 || sistolica < 90) {
+            if (pam < 60) {
                 esInestable = true;
+                justificaciones.push("PAM menor a 60 mmHg");
             }
+
+            if (fc > 100) {
+                esInestable = true;
+                justificaciones.push("taquicardia (FC mayor a 100 lpm)");
+            } else if (fc < 50) {
+                esInestable = true;
+                justificaciones.push("bradicardia (FC menor a 50 lpm)");
+            }
+
+            if (spo2 < 90) {
+                esInestable = true;
+                justificaciones.push("hipoxia (SpO2 menor al 90%)");
+            }
+
+            if (sistolica < 90) {
+                esInestable = true;
+                justificaciones.push("hipotensión (Presión Sistólica menor a 90 mmHg)");
+            }
+
+            if (temperatura && (temperatura < 35 || temperatura > 39)) {
+                esInestable = true;
+                justificaciones.push(`temperatura anormal (${temperatura}°C)`);
+            }
+
+            return justificaciones.join(", ");
         }
 
 
@@ -1489,30 +1638,302 @@
         });
 
         function inicializarTooltips() {
-    document.querySelectorAll('.tooltip-trigger').forEach(element => {
-        element.addEventListener('click', (e) => {
-            const tooltipText = e.target.getAttribute('data-tooltip');
-            let tooltip = e.target.nextElementSibling;
+            document.querySelectorAll('.tooltip-trigger').forEach(element => {
+                element.addEventListener('click', (e) => {
+                    const tooltipText = e.target.getAttribute('data-tooltip');
+                    let tooltip = e.target.nextElementSibling;
 
-            if (!tooltip || !tooltip.classList.contains('tooltip')) {
-                tooltip = document.createElement('div');
-                tooltip.className = 'tooltip';
-                tooltip.textContent = tooltipText;
-                e.target.parentNode.appendChild(tooltip);
+                    if (!tooltip || !tooltip.classList.contains('tooltip')) {
+                        tooltip = document.createElement('div');
+                        tooltip.className = 'tooltip';
+                        tooltip.textContent = tooltipText;
+                        e.target.parentNode.appendChild(tooltip);
+                    }
+
+                    if (tooltip.classList.contains('hidden')) {
+                        tooltip.classList.remove('hidden');
+                    } else {
+                        tooltip.classList.add('hidden');
+                    }
+                });
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            inicializarTooltips();
+        });
+
+        // CONTROL DE LIQUIDOS
+        function toggleControlLiquidos() {
+            const controlLiquidosCheckbox = document.getElementById('realizarControlLiquidos');
+            const controlLiquidosFields = document.getElementById('controlLiquidosFields');
+
+            if (controlLiquidosCheckbox.checked) {
+                controlLiquidosFields.classList.remove('hidden');
+            } else {
+                controlLiquidosFields.classList.add('hidden');
+            }
+        }
+
+        // Añadir el evento de cálculo automático
+        document.getElementById('liquidosAdministrados').addEventListener('input', calcularBalanceHidrico);
+        document.getElementById('liquidosEliminados').addEventListener('input', calcularBalanceHidrico);
+
+        function calcularBalanceHidrico() {
+            const administradosInput = document.getElementById('liquidosAdministrados');
+            const eliminadosInput = document.getElementById('liquidosEliminados');
+            const balanceField = document.getElementById('balanceHidrico');
+
+            // Forzar valores no negativos
+            let liquidosAdministrados = parseFloat(administradosInput.value) || 0;
+            let liquidosEliminados = parseFloat(eliminadosInput.value) || 0;
+
+            if (liquidosAdministrados < 0) {
+                liquidosAdministrados = 0;
+                administradosInput.value = 0;
+                alert("Los líquidos administrados no pueden ser negativos. Valor corregido a 0.");
             }
 
-            if (tooltip.classList.contains('hidden')) {
-                tooltip.classList.remove('hidden');
+            if (liquidosEliminados < 0) {
+                liquidosEliminados = 0;
+                eliminadosInput.value = 0;
+                alert("Los líquidos eliminados no pueden ser negativos. Valor corregido a 0.");
+            }
+
+            // Calcular balance
+            const balance = liquidosAdministrados - liquidosEliminados;
+            balanceField.value = balance.toFixed(2); // Mostrar con 2 decimales
+
+            // Aplicar color al campo del balance hídrico
+            if (balance < 0) {
+                balanceField.style.borderColor = "#EF4444"; // Rojo
+                balanceField.style.color = "#EF4444";
             } else {
-                tooltip.classList.add('hidden');
+                balanceField.style.borderColor = "#10B981"; // Verde
+                balanceField.style.color = "#10B981";
+            }
+        }
+
+        // Vincular eventos a los campos de líquidos
+        document.getElementById('liquidosAdministrados').addEventListener('input', calcularBalanceHidrico);
+        document.getElementById('liquidosEliminados').addEventListener('input', calcularBalanceHidrico);
+
+        // IMC
+        function toggleIMC() {
+            const seccion = document.getElementById("seccionIMC");
+            const check = document.getElementById("mostrarIMC");
+            if (check.checked) {
+                seccion.classList.remove("hidden");
+            } else {
+                seccion.classList.add("hidden");
+                document.getElementById("resultadoIMC").textContent = "";
+            }
+        }
+
+        function calcularIMC() {
+            const peso = parseFloat(document.getElementById("peso").value);
+            const talla = parseFloat(document.getElementById("talla").value) / 100;
+
+            if (!peso || !talla || talla <= 0) {
+                alert("Por favor, ingresa un peso y una talla válidos.");
+                return;
+            }
+
+            const imc = peso / (talla * talla);
+            let estado = "";
+
+            if (imc < 18.5) estado = "Bajo peso";
+            else if (imc < 24.9) estado = "Normal";
+            else if (imc < 29.9) estado = "Sobrepeso";
+            else estado = "Obesidad";
+
+            document.getElementById("resultadoIMC").textContent = `IMC: ${imc.toFixed(2)} (${estado})`;
+        }
+
+        // exportarXLSX
+        async function exportarComoXLSXBonito() {
+            const datos = recopilarDatos();
+            const workbook = new ExcelJS.Workbook();
+
+            const now = new Date();
+            const fechaStr = now.toLocaleDateString();
+            const horaStr = now.toLocaleTimeString();
+            const nombre = datos.iniciales || "Paciente";
+
+            // 🟦 HOJA 1: RESUMEN GENERAL
+            const hoja1 = workbook.addWorksheet("Resumen del Paciente");
+
+            hoja1.mergeCells("A1", "B1");
+            hoja1.getCell("A1").value = "Nota de Enfermería";
+            hoja1.getCell("A1").font = { size: 16, bold: true };
+            hoja1.getCell("A1").alignment = { horizontal: "center" };
+
+            const resumen = [
+                ["Fecha", fechaStr],
+                ["Hora", horaStr],
+                ["Iniciales", datos.iniciales],
+                ["Edad", datos.edad],
+                ["Género", datos.genero],
+                ["Habitación", datos.habitacion],
+                ["Diagnóstico Principal", datos.diagnosticoPrincipal],
+                ["Acompañante", datos.acompanante],
+                ["Escala de Glasgow", datos.glasgow],
+                ["Posición", datos.posicion],
+                ["Acceso Venoso", datos.tieneAccesoVenoso ? "Sí" : "No"],
+                ["Ubicación Acceso", datos.ubicacionAcceso],
+                ["Calibre", datos.calibreCateter],
+                ["Tipo de dieta", datos.tipoDieta],
+                ["Restricciones", datos.restricciones],
+                ["Antecedentes", datos.antecedentes],
+                ["Evaluación Nutricional", datos.evaluacionNutricional],
+                ["Observaciones", datos.observaciones],
+                ["Balance Hídrico", datos.realizarControlLiquidos ? `${datos.balanceHidrico} mL` : "No se realizó"],
+            ];
+
+            resumen.forEach(([campo, valor]) => hoja1.addRow([campo, valor]));
+
+            hoja1.columns = [
+                { width: 30 },
+                { width: 50 }
+            ];
+
+            hoja1.eachRow((row, i) => {
+                if (i === 1) return;
+                row.getCell(1).font = { bold: true };
+                row.eachCell(cell => {
+                    cell.border = {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    };
+                    cell.alignment = { vertical: "middle" };
+                });
+            });
+
+            // 🟩 HOJA 2: SIGNOS VITALES
+            const hoja2 = workbook.addWorksheet("Signos Vitales");
+
+            hoja2.addRow(["Signo", "Ingreso", "Entrega"]).font = { bold: true };
+            hoja2.addRows([
+                ["FC", datos.fc, datos.fcFinal],
+                ["FR", datos.fr, datos.frFinal],
+                ["Temperatura", datos.temperatura, datos.temperaturaFinal],
+                ["SpO2", datos.spo2, datos.spo2Final],
+                ["PA Sistólica", datos.paSistolica, datos.paSistolicaFinal],
+                ["PA Diastólica", datos.paDiastolica, datos.paDiastolicaFinal],
+                ["Glucometría", datos.glucometria, datos.glucometriaFinal],
+                ["EVA", datos.eva, datos.evaFinal]
+            ]);
+
+            hoja2.columns = [
+                { width: 25 },
+                { width: 15 },
+                { width: 15 }
+            ];
+
+            hoja2.eachRow(row => {
+                row.eachCell(cell => {
+                    cell.border = {
+                        top: { style: "thin" },
+                        bottom: { style: "thin" },
+                        left: { style: "thin" },
+                        right: { style: "thin" }
+                    };
+                });
+            });
+
+            // 🟨 HOJA 3: MEDICAMENTOS
+            const hoja3 = workbook.addWorksheet("Medicamentos");
+            hoja3.addRow(["Nombre", "Dosis", "Vía", "Hora", "Observaciones"]).font = { bold: true };
+
+            datos.medicamentos.forEach(med => {
+                hoja3.addRow([
+                    med.nombre,
+                    med.dosis,
+                    med.via,
+                    med.hora,
+                    med.observaciones
+                ]);
+            });
+
+            hoja3.columns = [
+                { width: 25 },
+                { width: 15 },
+                { width: 15 },
+                { width: 12 },
+                { width: 40 }
+            ];
+
+            // 🟥 HOJA 4: EVENTOS
+            const hoja4 = workbook.addWorksheet("Eventos del Turno");
+            hoja4.addRow(["Hora", "Tipo", "Descripción"]).font = { bold: true };
+
+            datos.eventos.forEach(ev => {
+                hoja4.addRow([
+                    ev.hora,
+                    ev.tipo,
+                    ev.descripcion
+                ]);
+            });
+
+            hoja4.columns = [
+                { width: 12 },
+                { width: 25 },
+                { width: 60 }
+            ];
+
+            // 📥 EXPORTACIÓN
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Nota_Enfermeria_${nombre}_${now.toISOString().split("T")[0]}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+
+
+        // ATAJOS
+
+        document.addEventListener('keydown', function (e) {
+            if (!e.altKey) return;
+
+            switch (e.key) {
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                    showSection(parseInt(e.key) - 1);
+                    break;
+                case 'm':
+                case 'M':
+                    e.preventDefault();
+                    if (document.getElementById('section-2').classList.contains('section-active')) {
+                        agregarMedicamento();
+                    }
+                    break;
+                case 'e':
+                case 'E':
+                    e.preventDefault();
+                    if (document.getElementById('section-3').classList.contains('section-active')) {
+                        agregarEvento();
+                    }
+                    break;
+                case 'g':
+                case 'G':
+                    e.preventDefault();
+                    if (currentSection === 3) {
+                        generarNota();
+                    }
+                    break;
             }
         });
-    });
-}
-document.addEventListener('DOMContentLoaded', () => {
-    inicializarTooltips();
-});
-
 
     </script>
 
